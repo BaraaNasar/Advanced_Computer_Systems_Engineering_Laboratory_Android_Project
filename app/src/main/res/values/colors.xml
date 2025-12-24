@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Modern Fintech Palette -->
+    <color name="primary">#0D47A1</color> <!-- Deep Blue -->
+    <color name="primary_dark">#002171</color>
+    <color name="primary_light">#5472d3</color>
+    
+    <color name="secondary">#00Bfa5</color> <!-- Teal Accent -->
+    <color name="secondary_dark">#008e76</color>
+    
+    <color name="background_light">#F5F7FA</color>
+    <color name="surface_white">#FFFFFF</color>
+    
+    <color name="text_primary">#263238</color>
+    <color name="text_secondary">#78909C</color>
+    
+    <color name="color_income">#4CAF50</color>
+    <color name="color_expense">#FF5252</color>
+    
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    
+    <color name="input_background_color">#FFFFFF</color>
+    
+    <!-- Compatibility names -->
+    <color name="purple_200">@color/primary_light</color>
+    <color name="purple_500">@color/primary</color>
+    <color name="purple_700">@color/primary_dark</color>
+    <color name="teal_200">@color/secondary</color>
+    <color name="teal_700">@color/secondary_dark</color>
+    
+    <!-- Legacy compatibility -->
+    <color name="income_green">@color/color_income</color>
+    <color name="expense_red">@color/color_expense</color>
+</resources>

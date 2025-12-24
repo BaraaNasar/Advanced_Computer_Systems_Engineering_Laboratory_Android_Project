@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="periods_array">
+        <item>Month</item>
+        <item>Week</item>
+        <item>Day</item>
+        <item>Custom</item>
+    </string-array>
+    <color name="background_light">#F5F7FA</color>
+    <color name="black">#000000</color>
+    <color name="color_expense">#FF5252</color>
+    <color name="color_income">#4CAF50</color>
+    <color name="expense_red">@color/color_expense</color>
+    <color name="income_green">@color/color_income</color>
+    <color name="input_background_color">#FFFFFF</color>
+    <color name="primary">#0D47A1</color>
+    <color name="primary_dark">#002171</color>
+    <color name="primary_light">#5472d3</color>
+    <color name="purple_200">@color/primary_light</color>
+    <color name="purple_500">@color/primary</color>
+    <color name="purple_700">@color/primary_dark</color>
+    <color name="secondary">#00Bfa5</color>
+    <color name="secondary_dark">#008e76</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="teal_200">@color/secondary</color>
+    <color name="teal_700">@color/secondary_dark</color>
+    <color name="text_primary">#263238</color>
+    <color name="text_secondary">#78909C</color>
+    <color name="white">#FFFFFF</color>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_sign_in_short">Sign In</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="app_name">Personal Finance</string>
+    <string name="budget_limit">Limit</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="expense">Expense</string>
+    <string name="first_name">First Name</string>
+    <string name="income">Income</string>
+    <string name="label_amount">Amount</string>
+    <string name="label_category">Category</string>
+    <string name="label_date">Date</string>
+    <string name="label_description">Description</string>
+    <string name="last_name">Last Name</string>
+    <string name="menu_budget">Budgets &amp; Goals</string>
+    <string name="menu_expenses">Expenses</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_income">Income</string>
+    <string name="menu_logout">Logout</string>
+    <string name="menu_profile">Profile</string>
+    <string name="menu_settings">Settings</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="remember_me">Remember Me</string>
+    <string name="save">Save</string>
+    <string name="set_budget">Set Budget</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="total_balance">Total Balance</string>
+    <string name="welcome_message">Welcome Back!</string>
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="Theme.PersonalFinanceApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        
+        
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        
+        
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button</item>
+    </style>
+    <style name="Theme.PersonalFinanceApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+    <style name="Widget.App.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardElevation">4dp</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="cardBackgroundColor">@color/white</item>
+    </style>
+    <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/input_background_color</item>
+    </style>
+</resources>

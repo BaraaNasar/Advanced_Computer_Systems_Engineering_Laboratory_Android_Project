@@ -1,0 +1,62 @@
+[
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/item_transaction.xml",
+        "source": "com.personal.finance.app-main-48:/layout/item_transaction.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/activity_signup.xml",
+        "source": "com.personal.finance.app-main-48:/layout/activity_signup.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/fragment_transaction_list.xml",
+        "source": "com.personal.finance.app-main-48:/layout/fragment_transaction_list.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/content_main.xml",
+        "source": "com.personal.finance.app-main-48:/layout/content_main.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/dialog_add_budget.xml",
+        "source": "com.personal.finance.app-main-48:/layout/dialog_add_budget.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/fragment_settings.xml",
+        "source": "com.personal.finance.app-main-48:/layout/fragment_settings.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/fragment_home.xml",
+        "source": "com.personal.finance.app-main-48:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/app_bar_main.xml",
+        "source": "com.personal.finance.app-main-48:/layout/app_bar_main.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/item_budget.xml",
+        "source": "com.personal.finance.app-main-48:/layout/item_budget.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/fragment_profile.xml",
+        "source": "com.personal.finance.app-main-48:/layout/fragment_profile.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/activity_main.xml",
+        "source": "com.personal.finance.app-main-48:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/dialog_add_transaction.xml",
+        "source": "com.personal.finance.app-main-48:/layout/dialog_add_transaction.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/fragment_budget.xml",
+        "source": "com.personal.finance.app-main-48:/layout/fragment_budget.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/nav_header_main.xml",
+        "source": "com.personal.finance.app-main-48:/layout/nav_header_main.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeReleaseResources-46:/layout/activity_login.xml",
+        "source": "com.personal.finance.app-main-48:/layout/activity_login.xml"
+    }
+]

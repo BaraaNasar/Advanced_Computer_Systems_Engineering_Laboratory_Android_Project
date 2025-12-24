@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.personal.finance.ui.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_income"
+        android:name="com.personal.finance.ui.IncomeFragment"
+        android:label="@string/menu_income"
+        tools:layout="@layout/fragment_transaction_list" />
+
+    <fragment
+        android:id="@+id/nav_gallery"
+        android:name="com.personal.finance.ui.ExpenseFragment"
+        android:label="@string/menu_expenses"
+        tools:layout="@layout/fragment_transaction_list" />
+        
+    <fragment
+        android:id="@+id/nav_slideshow"
+        android:name="com.personal.finance.ui.BudgetFragment"
+        android:label="@string/menu_budget"
+        tools:layout="@layout/fragment_budget" />
+        
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.personal.finance.ui.ProfileFragment"
+        android:label="@string/menu_profile"
+        tools:layout="@layout/fragment_profile" />
+        
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.personal.finance.ui.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+</navigation>
