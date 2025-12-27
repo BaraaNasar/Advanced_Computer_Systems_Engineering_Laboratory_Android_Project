@@ -105,6 +105,10 @@ public class FinanceRepository {
         AppDatabase.databaseWriteExecutor.execute(() -> transactionDao.delete(transaction));
     }
 
+    public void updateTransaction(Transaction transaction) {
+        AppDatabase.databaseWriteExecutor.execute(() -> transactionDao.update(transaction));
+    }
+
     // Budget Operations
     public LiveData<List<Budget>> getAllBudgets(String email) {
         return budgetDao.getAllBudgets(email);
@@ -116,5 +120,27 @@ public class FinanceRepository {
 
     public void deleteBudget(Budget budget) {
         AppDatabase.databaseWriteExecutor.execute(() -> budgetDao.delete(budget));
+    }
+
+    public void prePopulateCategories(String email) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            if (categoryDao.getCategoryCount(email) == 0) {
+                // Income Categories
+                categoryDao.insert(new Category("Salary", "INCOME", email));
+                categoryDao.insert(new Category("Scholarship", "INCOME", email));
+                categoryDao.insert(new Category("Gift", "INCOME", email));
+                categoryDao.insert(new Category("Interest", "INCOME", email));
+
+                // Expense Categories
+                categoryDao.insert(new Category("Groceries", "EXPENSE", email));
+                categoryDao.insert(new Category("Rent", "EXPENSE", email));
+                categoryDao.insert(new Category("Food", "EXPENSE", email));
+                categoryDao.insert(new Category("Bills", "EXPENSE", email));
+                categoryDao.insert(new Category("Entertainment", "EXPENSE", email));
+                categoryDao.insert(new Category("Transport", "EXPENSE", email));
+                categoryDao.insert(new Category("Health", "EXPENSE", email));
+                categoryDao.insert(new Category("Shopping", "EXPENSE", email));
+            }
+        });
     }
 }

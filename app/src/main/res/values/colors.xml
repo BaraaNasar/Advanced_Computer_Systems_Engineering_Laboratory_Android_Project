@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Modern Fintech Palette -->
-    <color name="primary">#0D47A1</color> <!-- Deep Blue -->
-    <color name="primary_dark">#002171</color>
-    <color name="primary_light">#5472d3</color>
+    <!-- Emerald & Forest Palette (Harmonized) -->
+    <color name="primary">#48C67D</color> <!-- Emerald -->
+    <color name="primary_dark">#133A2D</color> <!-- Forest Green -->
+    <color name="primary_light">#D1FAE5</color> <!-- Light Mint -->
     
-    <color name="secondary">#00Bfa5</color> <!-- Teal Accent -->
-    <color name="secondary_dark">#008e76</color>
+    <color name="secondary">#36B9FF</color> <!-- Cyan Accent -->
+    <color name="secondary_dark">#0095D9</color>
     
-    <color name="background_light">#F5F7FA</color>
+    <color name="background_light">#F8FAFC</color> <!-- Clean background for Main App -->
+    <color name="main_background">@color/background_light</color>
     <color name="surface_white">#FFFFFF</color>
     
-    <color name="text_primary">#263238</color>
-    <color name="text_secondary">#78909C</color>
+    <color name="text_primary">#133A2D</color> <!-- Dark Forest for readability on light surfaces -->
+    <color name="text_secondary">#64748B</color> <!-- Slate Gray -->
     
-    <color name="color_income">#4CAF50</color>
+    <color name="text_white">#FFFFFF</color> <!-- Always White -->
+    <color name="text_on_green">#FFFFFF</color>
+    <color name="text_on_green_secondary">#D1FAE5</color>
+    
+    <color name="color_income">#48C67D</color>
     <color name="color_expense">#FF5252</color>
-    
-    <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
-    
-    <color name="input_background_color">#FFFFFF</color>
+    <color name="black">#000000</color>
     
     <!-- Compatibility names -->
     <color name="purple_200">@color/primary_light</color>

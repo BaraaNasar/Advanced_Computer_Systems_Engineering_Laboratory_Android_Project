@@ -67,6 +67,14 @@ public class FinanceViewModel extends AndroidViewModel {
         repository.deleteTransaction(transaction);
     }
 
+    public void updateTransaction(Transaction transaction) {
+        repository.updateTransaction(transaction);
+    }
+
+    public void initializeUserData(String email) {
+        repository.prePopulateCategories(email);
+    }
+
     public LiveData<List<Budget>> getBudgets(String email) {
         return repository.getAllBudgets(email);
     }

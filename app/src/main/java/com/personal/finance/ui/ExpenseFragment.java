@@ -59,19 +59,62 @@ public class ExpenseFragment extends Fragment {
             adapter.setTransactions(expenses);
         });
 
-        view.findViewById(R.id.fabAdd).setOnClickListener(v -> showAddDialog(email));
+        view.findViewById(R.id.fabAdd).setOnClickListener(v -> showAddDialog(email, null));
+
+        adapter.setOnActionClickListener(new TransactionAdapter.OnActionClickListener() {
+            @Override
+            public void onEdit(Transaction transaction) {
+                showAddDialog(email, transaction);
+            }
+
+            @Override
+            public void onDelete(Transaction transaction) {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Delete Transaction")
+                        .setMessage("Are you sure you want to delete this expense?")
+                        .setPositiveButton("Delete", (dialog, which) -> financeViewModel.deleteTransaction(transaction))
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
     }
 
-    private void showAddDialog(String email) {
+    private long selectedDateTimestamp = System.currentTimeMillis();
+
+    private void showAddDialog(String email, @Nullable Transaction existingTransaction) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Add Expense");
+        builder.setTitle(existingTransaction == null ? "Add Expense" : "Edit Expense");
 
         View view = getLayoutInflater().inflate(R.layout.dialog_add_transaction, null);
         builder.setView(view);
 
         EditText etAmount = view.findViewById(R.id.etAmount);
-        android.widget.Spinner spinnerCategory = view.findViewById(R.id.spinnerCategory); // Changed
+        android.widget.Spinner spinnerCategory = view.findViewById(R.id.spinnerCategory);
         EditText etDescription = view.findViewById(R.id.etDescription);
+        android.widget.TextView tvDate = view.findViewById(R.id.tvTransactionDate);
+
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
+
+        if (existingTransaction != null) {
+            etAmount.setText(String.valueOf(existingTransaction.amount));
+            etDescription.setText(existingTransaction.description);
+            selectedDateTimestamp = existingTransaction.date;
+        } else {
+            selectedDateTimestamp = System.currentTimeMillis();
+        }
+        tvDate.setText(sdf.format(new java.util.Date(selectedDateTimestamp)));
+
+        tvDate.setOnClickListener(v -> {
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTimeInMillis(selectedDateTimestamp);
+            new android.app.DatePickerDialog(requireContext(), (view1, year, month, dayOfMonth) -> {
+                java.util.Calendar newCal = java.util.Calendar.getInstance();
+                newCal.set(year, month, dayOfMonth);
+                selectedDateTimestamp = newCal.getTimeInMillis();
+                tvDate.setText(sdf.format(new java.util.Date(selectedDateTimestamp)));
+            }, cal.get(java.util.Calendar.YEAR), cal.get(java.util.Calendar.MONTH),
+                    cal.get(java.util.Calendar.DAY_OF_MONTH)).show();
+        });
 
         // Populate Spinner
         List<com.personal.finance.data.model.Category> categoryList = new ArrayList<>();
@@ -84,10 +127,16 @@ public class ExpenseFragment extends Fragment {
             categoryList.clear();
             categoryList.addAll(categories);
             adapter.clear();
-            for (com.personal.finance.data.model.Category c : categories) {
+            int selectedIndex = 0;
+            for (int i = 0; i < categories.size(); i++) {
+                com.personal.finance.data.model.Category c = categories.get(i);
                 adapter.add(c.name);
+                if (existingTransaction != null && c.name.equals(existingTransaction.category)) {
+                    selectedIndex = i;
+                }
             }
             adapter.notifyDataSetChanged();
+            spinnerCategory.setSelection(selectedIndex);
         });
 
         builder.setPositiveButton("Save", (dialog, which) -> {
@@ -101,9 +150,17 @@ public class ExpenseFragment extends Fragment {
 
             if (!amountStr.isEmpty() && category != null) {
                 double amount = Double.parseDouble(amountStr);
-                Transaction transaction = new Transaction(
-                        amount, System.currentTimeMillis(), category, description, "EXPENSE", email);
-                financeViewModel.addTransaction(transaction);
+                if (existingTransaction == null) {
+                    Transaction transaction = new Transaction(
+                            amount, selectedDateTimestamp, category, description, "EXPENSE", email);
+                    financeViewModel.addTransaction(transaction);
+                } else {
+                    existingTransaction.amount = amount;
+                    existingTransaction.category = category;
+                    existingTransaction.description = description;
+                    existingTransaction.date = selectedDateTimestamp;
+                    financeViewModel.updateTransaction(existingTransaction);
+                }
             } else {
                 Toast.makeText(getContext(), "Invalid Input or missing category", Toast.LENGTH_SHORT).show();
             }

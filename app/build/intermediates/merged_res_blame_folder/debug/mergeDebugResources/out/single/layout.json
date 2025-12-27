@@ -1,5 +1,9 @@
 [
     {
+        "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\activity_add_transaction.xml",
+        "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\activity_add_transaction.xml"
+    },
+    {
         "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\dialog_add_budget.xml",
         "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\dialog_add_budget.xml"
     },
@@ -24,12 +28,12 @@
         "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\activity_main.xml"
     },
     {
-        "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\fragment_home.xml",
-        "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\fragment_home.xml"
-    },
-    {
         "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\fragment_budget.xml",
         "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\fragment_budget.xml"
+    },
+    {
+        "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\fragment_home.xml",
+        "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\fragment_home.xml"
     },
     {
         "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\activity_signup.xml",
@@ -48,16 +52,20 @@
         "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\fragment_settings.xml"
     },
     {
-        "merged": "com.personal.finance.app-mergeDebugResources-46:/layout/fragment_settings.xml",
-        "source": "com.personal.finance.app-main-49:/layout/fragment_settings.xml"
-    },
-    {
         "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\activity_login.xml",
         "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\activity_login.xml"
     },
     {
         "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\fragment_profile.xml",
         "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\fragment_profile.xml"
+    },
+    {
+        "merged": "com.personal.finance.app-mergeDebugResources-46:/layout/dialog_add_transaction.xml",
+        "source": "com.personal.finance.app-main-49:/layout/dialog_add_transaction.xml"
+    },
+    {
+        "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\activity_transaction_list.xml",
+        "source": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-main-49:\\layout\\activity_transaction_list.xml"
     },
     {
         "merged": "C:\\Users\\USER\\.gradle\\daemon\\8.5\\com.personal.finance.app-mergeDebugResources-46:\\layout\\dialog_add_transaction.xml",

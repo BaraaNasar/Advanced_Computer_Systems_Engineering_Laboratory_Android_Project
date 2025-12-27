@@ -21,6 +21,18 @@ import java.util.Locale;
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
 
     private List<Transaction> transactions = new ArrayList<>();
+    private OnActionClickListener actionListener;
+
+    public interface OnActionClickListener {
+        void onEdit(Transaction transaction);
+
+        void onDelete(Transaction transaction);
+    }
+
+    public void setOnActionClickListener(OnActionClickListener listener) {
+        this.actionListener = listener;
+    }
+
     private OnItemClickListener listener;
 
     @NonNull
@@ -71,6 +83,23 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             tvAmount = itemView.findViewById(R.id.tvAmount);
             tvDescription = itemView.findViewById(R.id.tvDescription);
             tvDate = itemView.findViewById(R.id.tvDate);
+
+            TextView editBtn = itemView.findViewById(R.id.editButton);
+            TextView deleteBtn = itemView.findViewById(R.id.deleteButton);
+
+            editBtn.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (actionListener != null && position != RecyclerView.NO_POSITION) {
+                    actionListener.onEdit(transactions.get(position));
+                }
+            });
+
+            deleteBtn.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (actionListener != null && position != RecyclerView.NO_POSITION) {
+                    actionListener.onDelete(transactions.get(position));
+                }
+            });
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();

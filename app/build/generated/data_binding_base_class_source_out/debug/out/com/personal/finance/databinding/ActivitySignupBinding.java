@@ -12,6 +12,7 @@ import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.personal.finance.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -40,6 +41,21 @@ public final class ActivitySignupBinding implements ViewBinding {
   public final TextInputEditText etPasswordSignUp;
 
   @NonNull
+  public final TextInputLayout tilConfirmPassword;
+
+  @NonNull
+  public final TextInputLayout tilEmailSignUp;
+
+  @NonNull
+  public final TextInputLayout tilFirstName;
+
+  @NonNull
+  public final TextInputLayout tilLastName;
+
+  @NonNull
+  public final TextInputLayout tilPasswordSignUp;
+
+  @NonNull
   public final TextView tvCreateAccount;
 
   @NonNull
@@ -48,8 +64,10 @@ public final class ActivitySignupBinding implements ViewBinding {
   private ActivitySignupBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnSignUp,
       @NonNull TextInputEditText etConfirmPassword, @NonNull TextInputEditText etEmailSignUp,
       @NonNull TextInputEditText etFirstName, @NonNull TextInputEditText etLastName,
-      @NonNull TextInputEditText etPasswordSignUp, @NonNull TextView tvCreateAccount,
-      @NonNull TextView tvSubtitle) {
+      @NonNull TextInputEditText etPasswordSignUp, @NonNull TextInputLayout tilConfirmPassword,
+      @NonNull TextInputLayout tilEmailSignUp, @NonNull TextInputLayout tilFirstName,
+      @NonNull TextInputLayout tilLastName, @NonNull TextInputLayout tilPasswordSignUp,
+      @NonNull TextView tvCreateAccount, @NonNull TextView tvSubtitle) {
     this.rootView = rootView;
     this.btnSignUp = btnSignUp;
     this.etConfirmPassword = etConfirmPassword;
@@ -57,6 +75,11 @@ public final class ActivitySignupBinding implements ViewBinding {
     this.etFirstName = etFirstName;
     this.etLastName = etLastName;
     this.etPasswordSignUp = etPasswordSignUp;
+    this.tilConfirmPassword = tilConfirmPassword;
+    this.tilEmailSignUp = tilEmailSignUp;
+    this.tilFirstName = tilFirstName;
+    this.tilLastName = tilLastName;
+    this.tilPasswordSignUp = tilPasswordSignUp;
     this.tvCreateAccount = tvCreateAccount;
     this.tvSubtitle = tvSubtitle;
   }
@@ -124,6 +147,36 @@ public final class ActivitySignupBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tilConfirmPassword;
+      TextInputLayout tilConfirmPassword = ViewBindings.findChildViewById(rootView, id);
+      if (tilConfirmPassword == null) {
+        break missingId;
+      }
+
+      id = R.id.tilEmailSignUp;
+      TextInputLayout tilEmailSignUp = ViewBindings.findChildViewById(rootView, id);
+      if (tilEmailSignUp == null) {
+        break missingId;
+      }
+
+      id = R.id.tilFirstName;
+      TextInputLayout tilFirstName = ViewBindings.findChildViewById(rootView, id);
+      if (tilFirstName == null) {
+        break missingId;
+      }
+
+      id = R.id.tilLastName;
+      TextInputLayout tilLastName = ViewBindings.findChildViewById(rootView, id);
+      if (tilLastName == null) {
+        break missingId;
+      }
+
+      id = R.id.tilPasswordSignUp;
+      TextInputLayout tilPasswordSignUp = ViewBindings.findChildViewById(rootView, id);
+      if (tilPasswordSignUp == null) {
+        break missingId;
+      }
+
       id = R.id.tvCreateAccount;
       TextView tvCreateAccount = ViewBindings.findChildViewById(rootView, id);
       if (tvCreateAccount == null) {
@@ -137,7 +190,9 @@ public final class ActivitySignupBinding implements ViewBinding {
       }
 
       return new ActivitySignupBinding((ScrollView) rootView, btnSignUp, etConfirmPassword,
-          etEmailSignUp, etFirstName, etLastName, etPasswordSignUp, tvCreateAccount, tvSubtitle);
+          etEmailSignUp, etFirstName, etLastName, etPasswordSignUp, tilConfirmPassword,
+          tilEmailSignUp, tilFirstName, tilLastName, tilPasswordSignUp, tvCreateAccount,
+          tvSubtitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -4,6 +4,7 @@ package com.personal.finance.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -21,6 +22,12 @@ public final class ItemTransactionBinding implements ViewBinding {
   private final MaterialCardView rootView;
 
   @NonNull
+  public final Button deleteButton;
+
+  @NonNull
+  public final Button editButton;
+
+  @NonNull
   public final ImageView ivIcon;
 
   @NonNull
@@ -35,10 +42,12 @@ public final class ItemTransactionBinding implements ViewBinding {
   @NonNull
   public final TextView tvDescription;
 
-  private ItemTransactionBinding(@NonNull MaterialCardView rootView, @NonNull ImageView ivIcon,
-      @NonNull TextView tvAmount, @NonNull TextView tvCategory, @NonNull TextView tvDate,
-      @NonNull TextView tvDescription) {
+  private ItemTransactionBinding(@NonNull MaterialCardView rootView, @NonNull Button deleteButton,
+      @NonNull Button editButton, @NonNull ImageView ivIcon, @NonNull TextView tvAmount,
+      @NonNull TextView tvCategory, @NonNull TextView tvDate, @NonNull TextView tvDescription) {
     this.rootView = rootView;
+    this.deleteButton = deleteButton;
+    this.editButton = editButton;
     this.ivIcon = ivIcon;
     this.tvAmount = tvAmount;
     this.tvCategory = tvCategory;
@@ -73,6 +82,18 @@ public final class ItemTransactionBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.deleteButton;
+      Button deleteButton = ViewBindings.findChildViewById(rootView, id);
+      if (deleteButton == null) {
+        break missingId;
+      }
+
+      id = R.id.editButton;
+      Button editButton = ViewBindings.findChildViewById(rootView, id);
+      if (editButton == null) {
+        break missingId;
+      }
+
       id = R.id.ivIcon;
       ImageView ivIcon = ViewBindings.findChildViewById(rootView, id);
       if (ivIcon == null) {
@@ -103,8 +124,8 @@ public final class ItemTransactionBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemTransactionBinding((MaterialCardView) rootView, ivIcon, tvAmount, tvCategory,
-          tvDate, tvDescription);
+      return new ItemTransactionBinding((MaterialCardView) rootView, deleteButton, editButton,
+          ivIcon, tvAmount, tvCategory, tvDate, tvDescription);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -25,10 +25,10 @@ public interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE userEmail = :email ORDER BY date DESC")
     LiveData<List<Transaction>> getAllTransactions(String email);
 
-    @Query("SELECT * FROM transactions WHERE userEmail = :email AND type = 'INCOME'")
+    @Query("SELECT * FROM transactions WHERE userEmail = :email AND type = 'INCOME' ORDER BY date DESC")
     LiveData<List<Transaction>> getIncomes(String email);
 
-    @Query("SELECT * FROM transactions WHERE userEmail = :email AND type = 'EXPENSE'")
+    @Query("SELECT * FROM transactions WHERE userEmail = :email AND type = 'EXPENSE' ORDER BY date DESC")
     LiveData<List<Transaction>> getExpenses(String email);
 
     @Query("SELECT SUM(amount) FROM transactions WHERE userEmail = :email AND type = 'INCOME'")

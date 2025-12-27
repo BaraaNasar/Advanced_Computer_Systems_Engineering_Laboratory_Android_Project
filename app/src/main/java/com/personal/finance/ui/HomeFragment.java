@@ -245,20 +245,43 @@ public class HomeFragment extends Fragment {
 
         if (entries.isEmpty()) {
             pieChart.clear();
-            pieChart.setNoDataText("No expense data for this period");
+            pieChart.setNoDataText("No expense data recorded yet");
+            pieChart.setNoDataTextColor(getResources().getColor(R.color.text_secondary));
             pieChart.invalidate();
             return;
         }
 
-        PieDataSet dataSet = new PieDataSet(entries, "Expenses");
-        dataSet.setColors(com.github.mikephil.charting.utils.ColorTemplate.MATERIAL_COLORS);
+        PieDataSet dataSet = new PieDataSet(entries, "");
+
+        // Premium Emerald Color Palette for Chart
+        int[] colors = new int[] {
+                Color.parseColor("#48C67D"), // Emerald
+                Color.parseColor("#133A2D"), // Forest
+                Color.parseColor("#36B9FF"), // Cyan
+                Color.parseColor("#D1FAE5"), // Mint
+                Color.parseColor("#059669") // Deep Emerald
+        };
+        dataSet.setColors(colors);
+        dataSet.setSliceSpace(3f);
         dataSet.setValueTextColor(Color.WHITE);
         dataSet.setValueTextSize(14f);
+        dataSet.setValueTypeface(android.graphics.Typeface.DEFAULT_BOLD);
 
         PieData data = new PieData(dataSet);
         pieChart.setData(data);
-        pieChart.setDescription(null);
-        pieChart.animateY(1000);
+        pieChart.getDescription().setEnabled(false);
+        pieChart.getLegend().setEnabled(true);
+        pieChart.getLegend()
+                .setOrientation(com.github.mikephil.charting.components.Legend.LegendOrientation.HORIZONTAL);
+        pieChart.getLegend().setHorizontalAlignment(
+                com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.CENTER);
+        pieChart.setDrawHoleEnabled(true);
+        pieChart.setHoleColor(Color.TRANSPARENT);
+        pieChart.setCenterText("Expenses");
+        pieChart.setCenterTextColor(getResources().getColor(R.color.text_primary));
+        pieChart.setCenterTextSize(16f);
+
+        pieChart.animateY(1200, com.github.mikephil.charting.animation.Easing.EaseInOutQuad);
         pieChart.invalidate();
     }
 }

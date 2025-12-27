@@ -56,5 +56,13 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
             }
         });
+
+        view.findViewById(R.id.btnLogoutProfile).setOnClickListener(v -> {
+            sessionManager.logout();
+            android.content.Intent intent = new android.content.Intent(requireContext(), LoginActivity.class);
+            intent.setFlags(
+                    android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        });
     }
 }

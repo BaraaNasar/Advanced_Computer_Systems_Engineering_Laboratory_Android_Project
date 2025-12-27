@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
@@ -29,12 +30,17 @@ public final class DialogAddTransactionBinding implements ViewBinding {
   @NonNull
   public final Spinner spinnerCategory;
 
+  @NonNull
+  public final TextView tvTransactionDate;
+
   private DialogAddTransactionBinding(@NonNull LinearLayout rootView, @NonNull EditText etAmount,
-      @NonNull EditText etDescription, @NonNull Spinner spinnerCategory) {
+      @NonNull EditText etDescription, @NonNull Spinner spinnerCategory,
+      @NonNull TextView tvTransactionDate) {
     this.rootView = rootView;
     this.etAmount = etAmount;
     this.etDescription = etDescription;
     this.spinnerCategory = spinnerCategory;
+    this.tvTransactionDate = tvTransactionDate;
   }
 
   @Override
@@ -82,8 +88,14 @@ public final class DialogAddTransactionBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvTransactionDate;
+      TextView tvTransactionDate = ViewBindings.findChildViewById(rootView, id);
+      if (tvTransactionDate == null) {
+        break missingId;
+      }
+
       return new DialogAddTransactionBinding((LinearLayout) rootView, etAmount, etDescription,
-          spinnerCategory);
+          spinnerCategory, tvTransactionDate);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

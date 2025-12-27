@@ -1863,6 +1863,7 @@ color m3_timepicker_secondary_text_button_ripple_color
 color m3_timepicker_secondary_text_button_text_color
 color m3_timepicker_time_input_stroke_color
 color m3_tonal_button_ripple_color_selector
+color main_background
 color material_blue_grey_800
 color material_blue_grey_900
 color material_blue_grey_950
@@ -2098,6 +2099,7 @@ color secondary_text_default_material_dark
 color secondary_text_default_material_light
 color secondary_text_disabled_material_dark
 color secondary_text_disabled_material_light
+color surface_dark
 color surface_white
 color switch_thumb_disabled_material_dark
 color switch_thumb_disabled_material_light
@@ -2107,10 +2109,13 @@ color switch_thumb_normal_material_dark
 color switch_thumb_normal_material_light
 color teal_200
 color teal_700
+color text_on_green
+color text_on_green_secondary
 color text_primary
 color text_primary_dark
 color text_secondary
 color text_secondary_dark
+color text_white
 color tooltip_background_dark
 color tooltip_background_light
 color white
@@ -2972,6 +2977,7 @@ drawable abc_vector_test
 drawable app_icon
 drawable avd_hide_password
 drawable avd_show_password
+drawable bg_balance_gradient
 drawable btn_checkbox_checked_mtrl
 drawable btn_checkbox_checked_to_unchecked_mtrl_animation
 drawable btn_checkbox_unchecked_mtrl
@@ -3001,7 +3007,9 @@ drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_palette
+drawable ic_piggy_bank
 drawable ic_search_black_24
+drawable ic_wallet
 drawable m3_appbar_background
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
@@ -3147,11 +3155,14 @@ id action_text
 id actions
 id activity_chooser_view_content
 id add
+id addButton
+id addTransactionButton
 id alertTitle
 id aligned
 id all
 id allStates
 id always
+id amountEdit
 id androidx_window_activity_scope
 id animateToEnd
 id animateToStart
@@ -3180,6 +3191,7 @@ id bounceStart
 id btnAddCategory
 id btnGoToSignUp
 id btnLogin
+id btnLogoutProfile
 id btnSaveProfile
 id btnSignUp
 id buttonPanel
@@ -3190,6 +3202,7 @@ id cardCategories
 id cardPeriod
 id cardTheme
 id carryVelocity
+id categorySpinner
 id cbRememberMe
 id center
 id centerCrop
@@ -3225,13 +3238,16 @@ id currentState
 id custom
 id customPanel
 id cut
+id dateEdit
 id date_picker_actions
 id decelerate
 id decelerateAndComplete
 id decor_content_parent
 id default_activity_button
+id deleteButton
 id deltaRelative
 id dependency_ordering
+id descriptionEdit
 id design_bottom_sheet
 id design_menu_item_action_area
 id design_menu_item_action_area_stub
@@ -3260,6 +3276,7 @@ id easeInOut
 id easeOut
 id east
 id edge
+id editButton
 id edit_query
 id elastic
 id embed
@@ -3414,6 +3431,7 @@ id mtrl_view_tag_bottom_padding
 id multiply
 id nav_controller_view_tag
 id nav_gallery
+id nav_history
 id nav_home
 id nav_host_fragment_container
 id nav_host_fragment_content_main
@@ -3590,8 +3608,13 @@ id textinput_helper_text
 id textinput_placeholder
 id textinput_prefix_text
 id textinput_suffix_text
+id tilConfirmPassword
 id tilEmail
+id tilEmailSignUp
+id tilFirstName
+id tilLastName
 id tilPassword
+id tilPasswordSignUp
 id time
 id title
 id titleDividerNoCustom
@@ -3600,6 +3623,7 @@ id toggle
 id toolbar
 id top
 id topPanel
+id topSpace
 id touch_outside
 id transitionToEnd
 id transitionToStart
@@ -3623,7 +3647,9 @@ id tvSubtitle
 id tvTotalBalance
 id tvTotalExpense
 id tvTotalIncome
+id tvTransactionDate
 id tvWelcome
+id typeSpinner
 id unchecked
 id uniform
 id unlabeled
@@ -3761,9 +3787,11 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout activity_add_transaction
 layout activity_login
 layout activity_main
 layout activity_signup
+layout activity_transaction_list
 layout app_bar_main
 layout content_main
 layout custom_dialog
@@ -3959,6 +3987,7 @@ string material_timepicker_select_time
 string material_timepicker_text_input_mode_description
 string menu_budget
 string menu_expenses
+string menu_history
 string menu_home
 string menu_income
 string menu_logout
@@ -4447,6 +4476,7 @@ style ShapeAppearanceOverlay_MaterialComponents_MaterialCalendar_Day
 style ShapeAppearanceOverlay_MaterialComponents_MaterialCalendar_Window_Fullscreen
 style ShapeAppearanceOverlay_MaterialComponents_MaterialCalendar_Year
 style ShapeAppearanceOverlay_MaterialComponents_TextInputLayout_FilledBox
+style TextAppearance_App_Error
 style TextAppearance_AppCompat
 style TextAppearance_AppCompat_Body1
 style TextAppearance_AppCompat_Body2

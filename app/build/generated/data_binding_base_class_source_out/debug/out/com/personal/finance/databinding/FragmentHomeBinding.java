@@ -4,11 +4,11 @@ package com.personal.finance.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.github.mikephil.charting.charts.PieChart;
@@ -19,7 +19,7 @@ import java.lang.String;
 
 public final class FragmentHomeBinding implements ViewBinding {
   @NonNull
-  private final ScrollView rootView;
+  private final NestedScrollView rootView;
 
   @NonNull
   public final PieChart pieChart;
@@ -39,7 +39,7 @@ public final class FragmentHomeBinding implements ViewBinding {
   @NonNull
   public final TextView tvTotalIncome;
 
-  private FragmentHomeBinding(@NonNull ScrollView rootView, @NonNull PieChart pieChart,
+  private FragmentHomeBinding(@NonNull NestedScrollView rootView, @NonNull PieChart pieChart,
       @NonNull Spinner spinnerPeriod, @NonNull TextView tvDateRange,
       @NonNull TextView tvTotalBalance, @NonNull TextView tvTotalExpense,
       @NonNull TextView tvTotalIncome) {
@@ -54,7 +54,7 @@ public final class FragmentHomeBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public ScrollView getRoot() {
+  public NestedScrollView getRoot() {
     return rootView;
   }
 
@@ -115,8 +115,8 @@ public final class FragmentHomeBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentHomeBinding((ScrollView) rootView, pieChart, spinnerPeriod, tvDateRange,
-          tvTotalBalance, tvTotalExpense, tvTotalIncome);
+      return new FragmentHomeBinding((NestedScrollView) rootView, pieChart, spinnerPeriod,
+          tvDateRange, tvTotalBalance, tvTotalExpense, tvTotalIncome);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

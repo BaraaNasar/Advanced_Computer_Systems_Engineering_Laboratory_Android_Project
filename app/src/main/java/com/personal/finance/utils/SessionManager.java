@@ -10,6 +10,8 @@ public class SessionManager {
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_THEME = "theme"; // "LIGHT" or "DARK"
+    private static final String KEY_REMEMBER_EMAIL = "remember_email";
+    private static final String KEY_REMEMBER_ME = "remember_me";
 
     public SessionManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -20,6 +22,24 @@ public class SessionManager {
         editor.putBoolean(KEY_IS_LOGGED_IN, isLoggedIn);
         editor.putString(KEY_EMAIL, email);
         editor.apply();
+    }
+
+    public void setRememberMe(boolean remember, String email) {
+        editor.putBoolean(KEY_REMEMBER_ME, remember);
+        if (remember) {
+            editor.putString(KEY_REMEMBER_EMAIL, email);
+        } else {
+            editor.remove(KEY_REMEMBER_EMAIL);
+        }
+        editor.apply();
+    }
+
+    public String getRememberedEmail() {
+        return sharedPreferences.getString(KEY_REMEMBER_EMAIL, "");
+    }
+
+    public boolean isRememberMeEnabled() {
+        return sharedPreferences.getBoolean(KEY_REMEMBER_ME, false);
     }
 
     public boolean isLoggedIn() {

@@ -21,6 +21,7 @@ public class LoginActivity extends AppCompatActivity {
     private AuthViewModel authViewModel;
     private SessionManager sessionManager;
     private EditText etEmail, etPassword;
+    private com.google.android.material.textfield.TextInputLayout tilEmail, tilPassword;
     private CheckBox cbRememberMe;
 
     @Override
@@ -28,9 +29,11 @@ public class LoginActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
         // ضبط الثيم حسب القيمة المخزنة
         if ("DARK".equals(sessionManager.getTheme())) {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+            androidx.appcompat.app.AppCompatDelegate
+                    .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
         } else {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+            androidx.appcompat.app.AppCompatDelegate
+                    .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
         super.onCreate(savedInstanceState);
 
@@ -46,54 +49,86 @@ public class LoginActivity extends AppCompatActivity {
 
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
+        tilEmail = findViewById(R.id.tilEmail);
+        tilPassword = findViewById(R.id.tilPassword);
         cbRememberMe = findViewById(R.id.cbRememberMe);
         Button btnLogin = findViewById(R.id.btnLogin);
         View btnSignUp = findViewById(R.id.btnGoToSignUp);
 
         btnLogin.setOnClickListener(v -> login());
         btnSignUp.setOnClickListener(v -> startActivity(new Intent(this, SignUpActivity.class)));
+
+        setupTextWatchers();
+
+        // Pre-fill email and remember me checkbox
+        if (sessionManager.isRememberMeEnabled()) {
+            etEmail.setText(sessionManager.getRememberedEmail());
+            cbRememberMe.setChecked(true);
+        }
     }
 
     private void login() {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
+        boolean hasError = false;
+        if (TextUtils.isEmpty(email)) {
+            tilEmail.setError("Email is required");
+            hasError = true;
         }
+        if (TextUtils.isEmpty(password)) {
+            tilPassword.setError("Password is required");
+            hasError = true;
+        }
+
+        if (hasError)
+            return;
 
         authViewModel.login(email, password).observe(this, user -> {
             if (user != null) {
-                if (cbRememberMe.isChecked()) {
-                    sessionManager.setLogin(true, user.email);
-                } else {
-                    sessionManager.setLogin(false, user.email);
-                    // If not remembered, we just session login for this run (handled by session
-                    // manager logic slightly differently usually, but simplistic here)
-                    // Actually requirement: "next time the user does not need to re-type".
-                    // If check box is checked, we set persistent login.
-                    // If not checked, we should probably still pass the user email to next
-                    // activity.
-                    // For this app, we will rely on SessionManager storing the email mostly.
-                    sessionManager.setLogin(false, user.email);
-                }
+                // Handle "Remember Me" logic according to requirements
+                sessionManager.setRememberMe(cbRememberMe.isChecked(), email);
 
-                // IMPORTANT: Actually setLogin(true) means persistent. setLogin(false) means
-                // maybe temporary.
-                // However, let's strictly follow requirement: "save the email in shared
-                // preferences".
-                // We will save login state if checked.
-                if (cbRememberMe.isChecked()) {
-                    sessionManager.setLogin(true, user.email);
-                } else {
-                    // Just store basic session info if needed, but for now we just proceed
-                    // We might need to handle "auto login" only if check box was checked.
-                }
+                // Set session login
+                sessionManager.setLogin(true, user.email);
+
+                // Initialize default categories if needed
+                authViewModel.initializeUserData(user.email);
 
                 startMainActivity();
             } else {
-                Toast.makeText(this, "Invalid Credentials", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Invalid Email or Password", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupTextWatchers() {
+        etEmail.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilEmail.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+        etPassword.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilPassword.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
             }
         });
     }

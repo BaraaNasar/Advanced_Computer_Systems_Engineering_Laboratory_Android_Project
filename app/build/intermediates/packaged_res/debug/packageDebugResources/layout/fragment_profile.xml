@@ -40,4 +40,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="@string/save" />
+
+    <Button
+        android:id="@+id/btnLogoutProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/menu_logout"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:textColor="@android:color/white"/>
 </LinearLayout>

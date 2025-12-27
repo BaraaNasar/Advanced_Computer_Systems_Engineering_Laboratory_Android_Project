@@ -9,10 +9,13 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.personal.finance.ui.viewmodel.FinanceViewModel;
 
 import com.google.android.material.navigation.NavigationView;
 import com.personal.finance.R;
@@ -30,9 +33,11 @@ public class MainActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
         // ضبط الثيم حسب القيمة المخزنة
         if ("DARK".equals(sessionManager.getTheme())) {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+            androidx.appcompat.app.AppCompatDelegate
+                    .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
         } else {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+            androidx.appcompat.app.AppCompatDelegate
+                    .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
         super.onCreate(savedInstanceState);
 
@@ -47,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
         // Pass each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_income, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_profile,
+                R.id.nav_home, R.id.nav_income, R.id.nav_history, R.id.nav_gallery, R.id.nav_slideshow,
+                R.id.nav_profile,
                 R.id.nav_settings)
                 .setOpenableLayout(drawer)
                 .build();
@@ -60,6 +66,13 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        // Ensure default categories exist if none found
+        FinanceViewModel financeViewModel = new ViewModelProvider(this).get(FinanceViewModel.class);
+        String userEmail = sessionManager.getUserEmail();
+        if (userEmail != null) {
+            financeViewModel.initializeUserData(userEmail);
+        }
+
         // Handle Logout manually as it's not a destination
         navigationView.getMenu().findItem(R.id.nav_logout).setOnMenuItemClickListener(item -> {
             sessionManager.logout();
@@ -71,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         // Set User Email in Header
         View headerView = navigationView.getHeaderView(0);
         TextView navUserEmail = headerView.findViewById(R.id.tvHeaderEmail);
-        String userEmail = sessionManager.getUserEmail();
         if (userEmail != null) {
             navUserEmail.setText(userEmail);
         }

@@ -222,7 +222,7 @@ public final class TransactionDao_Impl implements TransactionDao {
 
   @Override
   public LiveData<List<Transaction>> getIncomes(final String email) {
-    final String _sql = "SELECT * FROM transactions WHERE userEmail = ? AND type = 'INCOME'";
+    final String _sql = "SELECT * FROM transactions WHERE userEmail = ? AND type = 'INCOME' ORDER BY date DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     if (email == null) {
@@ -292,7 +292,7 @@ public final class TransactionDao_Impl implements TransactionDao {
 
   @Override
   public LiveData<List<Transaction>> getExpenses(final String email) {
-    final String _sql = "SELECT * FROM transactions WHERE userEmail = ? AND type = 'EXPENSE'";
+    final String _sql = "SELECT * FROM transactions WHERE userEmail = ? AND type = 'EXPENSE' ORDER BY date DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     if (email == null) {

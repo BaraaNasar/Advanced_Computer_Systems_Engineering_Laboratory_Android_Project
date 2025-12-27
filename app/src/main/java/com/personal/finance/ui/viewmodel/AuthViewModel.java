@@ -24,4 +24,8 @@ public class AuthViewModel extends AndroidViewModel {
     public LiveData<User> login(String email, String password) {
         return repository.login(email, password);
     }
+
+    public void initializeUserData(String email) {
+        repository.prePopulateCategories(email);
+    }
 }

@@ -4,22 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:windowBackground"
+    android:background="@color/primary"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:padding="32dp">
 
         <TextView
             android:id="@+id/tvCreateAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Create Account"
-            android:textColor="?android:textColorPrimary"
-            android:textSize="28sp"
+            android:layout_marginTop="32dp"
+            android:text="Join Us"
+            android:textColor="@color/text_on_green"
+            android:textSize="36sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,8 +30,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Join us to manage your finance"
-            android:textColor="?android:textColorSecondary"
+            android:text="Start your financial journey today"
+            android:textColor="@color/text_on_green_secondary"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,15 +41,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
+            android:layout_marginBottom="32dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="8dp"
-            app:cardBackgroundColor="?android:windowBackground"
+            app:cardBackgroundColor="@color/white"
+            app:strokeWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -60,108 +60,125 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
+                    android:orientation="horizontal">
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilFirstName"
                         style="@style/Widget.App.TextInputLayout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
-                        android:hint="@string/first_name"
-                        app:boxStrokeColor="@color/primary"
-                        app:hintTextColor="@color/primary">
+                        android:hint="First Name"
+                        app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etFirstName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPersonName"
-                            android:textColor="?android:textColorPrimary" />
+                            android:importantForAutofill="no"
+                            android:textColor="?android:textColorPrimary"
+                            android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilLastName"
                         style="@style/Widget.App.TextInputLayout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
-                        android:hint="@string/last_name"
-                        app:boxStrokeColor="@color/primary"
-                        app:hintTextColor="@color/primary">
+                        android:hint="Last Name"
+                        app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etLastName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPersonName"
-                            android:textColor="?android:textColorPrimary" />
+                            android:importantForAutofill="no"
+                            android:textColor="?android:textColorPrimary"
+                            android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilEmailSignUp"
                     style="@style/Widget.App.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:hint="@string/prompt_email"
-                    app:boxStrokeColor="@color/primary"
-                    app:hintTextColor="@color/primary">
+                    app:startIconDrawable="@android:drawable/ic_dialog_email"
+                    app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etEmailSignUp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress"
-                        android:textColor="?android:textColorPrimary" />
+                        android:inputType="textEmailAddress|textNoSuggestions"
+                        android:importantForAutofill="no"
+                        android:textColor="?android:textColorPrimary"
+                        android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPasswordSignUp"
                     style="@style/Widget.App.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:hint="@string/prompt_password"
-                    app:boxStrokeColor="@color/primary"
                     app:endIconMode="password_toggle"
-                    app:hintTextColor="@color/primary">
+                    app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                    app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPasswordSignUp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:textColor="?android:textColorPrimary" />
+                        android:inputType="textPassword|textNoSuggestions"
+                        android:importantForAutofill="no"
+                        android:textColor="?android:textColorPrimary"
+                        android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilConfirmPassword"
                     style="@style/Widget.App.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="@string/confirm_password"
-                    app:boxStrokeColor="@color/primary"
+                    android:layout_marginTop="12dp"
+                    android:hint="Confirm Password"
                     app:endIconMode="password_toggle"
-                    app:hintTextColor="@color/primary">
+                    app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                    app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etConfirmPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:textColor="?android:textColorPrimary" />
+                        android:inputType="textPassword|textNoSuggestions"
+                        android:importantForAutofill="no"
+                        android:textColor="?android:textColorPrimary"
+                        android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSignUp"
-                    style="@style/Widget.App.Button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:backgroundTint="@color/primary"
-                    android:text="@string/action_sign_up" />
+                    android:layout_height="56dp"
+                    android:layout_marginTop="24dp"
+                    android:text="Create Account"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="16dp"
+                    app:backgroundTint="@color/primary_dark"
+                    app:elevation="4dp" />
 
             </LinearLayout>
 

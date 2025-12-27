@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.Space;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +50,9 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final TextInputLayout tilPassword;
 
   @NonNull
+  public final Space topSpace;
+
+  @NonNull
   public final TextView tvSubtitle;
 
   @NonNull
@@ -58,7 +62,7 @@ public final class ActivityLoginBinding implements ViewBinding {
       @NonNull MaterialButton btnLogin, @NonNull CheckBox cbRememberMe,
       @NonNull TextInputEditText etEmail, @NonNull TextInputEditText etPassword,
       @NonNull ImageView logoImage, @NonNull TextInputLayout tilEmail,
-      @NonNull TextInputLayout tilPassword, @NonNull TextView tvSubtitle,
+      @NonNull TextInputLayout tilPassword, @NonNull Space topSpace, @NonNull TextView tvSubtitle,
       @NonNull TextView tvWelcome) {
     this.rootView = rootView;
     this.btnGoToSignUp = btnGoToSignUp;
@@ -69,6 +73,7 @@ public final class ActivityLoginBinding implements ViewBinding {
     this.logoImage = logoImage;
     this.tilEmail = tilEmail;
     this.tilPassword = tilPassword;
+    this.topSpace = topSpace;
     this.tvSubtitle = tvSubtitle;
     this.tvWelcome = tvWelcome;
   }
@@ -148,6 +153,12 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.topSpace;
+      Space topSpace = ViewBindings.findChildViewById(rootView, id);
+      if (topSpace == null) {
+        break missingId;
+      }
+
       id = R.id.tvSubtitle;
       TextView tvSubtitle = ViewBindings.findChildViewById(rootView, id);
       if (tvSubtitle == null) {
@@ -161,7 +172,7 @@ public final class ActivityLoginBinding implements ViewBinding {
       }
 
       return new ActivityLoginBinding((ScrollView) rootView, btnGoToSignUp, btnLogin, cbRememberMe,
-          etEmail, etPassword, logoImage, tilEmail, tilPassword, tvSubtitle, tvWelcome);
+          etEmail, etPassword, logoImage, tilEmail, tilPassword, topSpace, tvSubtitle, tvWelcome);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

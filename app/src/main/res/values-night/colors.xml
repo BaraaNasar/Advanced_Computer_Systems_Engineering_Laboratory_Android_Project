@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background_dark">#121212</color>
-    <color name="text_primary_dark">#FFFFFF</color>
-    <color name="text_secondary_dark">#B0BEC5</color>
+    <color name="background_dark">#0F1713</color>
+    <color name="main_background">@color/background_dark</color>
+    <color name="surface_dark">#1A2421</color>
+    <color name="text_primary_dark">#F1F5F9</color> <!-- Crisp White/Slate -->
+    <color name="text_secondary_dark">#94A3B8</color> <!-- Muted Slate -->
     
-    <color name="input_background_color">#23272A</color>
+    <color name="input_background_color">#1A2421</color>
 </resources>

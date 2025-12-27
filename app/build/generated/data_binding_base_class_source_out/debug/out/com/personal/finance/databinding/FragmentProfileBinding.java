@@ -21,6 +21,9 @@ public final class FragmentProfileBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
+  public final Button btnLogoutProfile;
+
+  @NonNull
   public final Button btnSaveProfile;
 
   @NonNull
@@ -32,10 +35,11 @@ public final class FragmentProfileBinding implements ViewBinding {
   @NonNull
   public final EditText etProfilePassword;
 
-  private FragmentProfileBinding(@NonNull LinearLayout rootView, @NonNull Button btnSaveProfile,
-      @NonNull EditText etProfileFirstName, @NonNull EditText etProfileLastName,
-      @NonNull EditText etProfilePassword) {
+  private FragmentProfileBinding(@NonNull LinearLayout rootView, @NonNull Button btnLogoutProfile,
+      @NonNull Button btnSaveProfile, @NonNull EditText etProfileFirstName,
+      @NonNull EditText etProfileLastName, @NonNull EditText etProfilePassword) {
     this.rootView = rootView;
+    this.btnLogoutProfile = btnLogoutProfile;
     this.btnSaveProfile = btnSaveProfile;
     this.etProfileFirstName = etProfileFirstName;
     this.etProfileLastName = etProfileLastName;
@@ -69,6 +73,12 @@ public final class FragmentProfileBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnLogoutProfile;
+      Button btnLogoutProfile = ViewBindings.findChildViewById(rootView, id);
+      if (btnLogoutProfile == null) {
+        break missingId;
+      }
+
       id = R.id.btnSaveProfile;
       Button btnSaveProfile = ViewBindings.findChildViewById(rootView, id);
       if (btnSaveProfile == null) {
@@ -93,8 +103,8 @@ public final class FragmentProfileBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentProfileBinding((LinearLayout) rootView, btnSaveProfile, etProfileFirstName,
-          etProfileLastName, etProfilePassword);
+      return new FragmentProfileBinding((LinearLayout) rootView, btnLogoutProfile, btnSaveProfile,
+          etProfileFirstName, etProfileLastName, etProfilePassword);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
