@@ -31,8 +31,8 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     @Override
     public void onBindViewHolder(@NonNull BudgetViewHolder holder, int position) {
         Budget budget = budgets.get(position);
-        holder.tvCategory.setText(budget.category);
-        holder.tvLimit.setText(String.format(Locale.getDefault(), "$%.2f", budget.limitAmount));
+        holder.tvCategory.setText(budget.getCategory());
+        holder.tvLimit.setText(String.format(Locale.getDefault(), "$%.2f", budget.getLimitAmount()));
     }
 
     @Override

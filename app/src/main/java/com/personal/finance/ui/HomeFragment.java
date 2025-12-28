@@ -18,6 +18,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.personal.finance.R;
+import com.personal.finance.data.model.CategorySum;
+import com.personal.finance.data.sqlite.TransactionDb;
 import com.personal.finance.ui.viewmodel.FinanceViewModel;
 import com.personal.finance.utils.SessionManager;
 
@@ -99,6 +101,27 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private long startOfDay(long millis) {
+        java.util.Calendar c = java.util.Calendar.getInstance();
+        c.setTimeInMillis(millis);
+        c.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        c.set(java.util.Calendar.MINUTE, 0);
+        c.set(java.util.Calendar.SECOND, 0);
+        c.set(java.util.Calendar.MILLISECOND, 0);
+        return c.getTimeInMillis();
+    }
+
+    private long endOfDay(long millis) {
+        java.util.Calendar c = java.util.Calendar.getInstance();
+        c.setTimeInMillis(millis);
+        c.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        c.set(java.util.Calendar.MINUTE, 59);
+        c.set(java.util.Calendar.SECOND, 59);
+        c.set(java.util.Calendar.MILLISECOND, 999);
+        return c.getTimeInMillis();
+    }
+
+
     private void setupSpinner() {
         android.widget.ArrayAdapter<CharSequence> adapter = android.widget.ArrayAdapter.createFromResource(
                 requireContext(),
@@ -130,34 +153,31 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateDateRange(String period) {
-        java.util.Calendar calendar = java.util.Calendar.getInstance();
-        // Reset to end of today
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 23);
-        calendar.set(java.util.Calendar.MINUTE, 59);
-        calendar.set(java.util.Calendar.SECOND, 59);
-        endDate = calendar.getTimeInMillis();
+        long now = System.currentTimeMillis();
+        endDate = endOfDay(now);
 
-        // Calculate start date
-        calendar = java.util.Calendar.getInstance(); // Reset
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
-        calendar.set(java.util.Calendar.MINUTE, 0);
-        calendar.set(java.util.Calendar.SECOND, 0);
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTimeInMillis(now);
 
         switch (period) {
             case "Day":
-                // Start is beginning of today
+                startDate = startOfDay(now);
                 break;
+
             case "Week":
-                calendar.set(java.util.Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+                cal.set(java.util.Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+                startDate = startOfDay(cal.getTimeInMillis());
                 break;
+
             case "Month":
-                calendar.set(java.util.Calendar.DAY_OF_MONTH, 1);
+                cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+                startDate = startOfDay(cal.getTimeInMillis());
                 break;
+
             case "Custom":
-                // Don't change if already set, or handled by picker
                 return;
         }
-        startDate = calendar.getTimeInMillis();
+
         updateDateDisplay();
     }
 
@@ -180,50 +200,44 @@ public class HomeFragment extends Fragment {
         new android.app.DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
             java.util.Calendar startCal = java.util.Calendar.getInstance();
             startCal.set(year, month, dayOfMonth, 0, 0, 0);
+            startCal.set(java.util.Calendar.MILLISECOND, 0);
             startDate = startCal.getTimeInMillis();
 
-            // For End Date, we could show another dialog.
-            // For now, let's just default End Date to Today if start is before today, or
-            // same day.
-            java.util.Calendar endCal = java.util.Calendar.getInstance();
-            endCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
-            endCal.set(java.util.Calendar.MINUTE, 59);
+            // endDate
+            endDate = endOfDay(System.currentTimeMillis());
 
-            if (endCal.getTimeInMillis() < startDate) {
-                endCal.setTimeInMillis(startDate);
-                endCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
-                endCal.set(java.util.Calendar.MINUTE, 59);
+
+            if (endDate < startDate) {
+                endDate = endOfDay(startDate);
             }
-            endDate = endCal.getTimeInMillis();
 
             spinnerPeriod.setSelection(3); // Custom
             updateDateDisplay();
             loadData();
-
         }, calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH),
                 calendar.get(java.util.Calendar.DAY_OF_MONTH)).show();
     }
 
     private void loadData() {
         String email = sessionManager.getUserEmail();
+        if (email == null) return;
 
-        // Remove observers to avoid duplicates if we were to re-attach (simplification)
-        // In real app, we might switch LiveData source.
-        // Here, simpler to just observe newly.
+        TransactionDb txDb = new TransactionDb(requireContext());
 
-        financeViewModel.getTotalIncomeByDate(email, startDate, endDate).observe(getViewLifecycleOwner(), income -> {
-            totalIncome = income != null ? income : 0.0;
-            updateBalanceUI();
-        });
+        new Thread(() -> {
+            double income = txDb.getTotalIncomeByDate(email, startDate, endDate);
+            double expense = txDb.getTotalExpenseByDate(email, startDate, endDate);
+            List<CategorySum> sums = txDb.getCategoryGroupedSums(email, "EXPENSE", startDate, endDate);
 
-        financeViewModel.getTotalExpenseByDate(email, startDate, endDate).observe(getViewLifecycleOwner(), expense -> {
-            totalExpense = expense != null ? expense : 0.0;
-            updateBalanceUI();
-        });
-
-        financeViewModel.getCategoryGroupedSums(email, "EXPENSE", startDate, endDate).observe(getViewLifecycleOwner(),
-                this::updateChart);
+            requireActivity().runOnUiThread(() -> {
+                totalIncome = income;
+                totalExpense = expense;
+                updateBalanceUI();
+                updateChart(sums);
+            });
+        }).start();
     }
+
 
     private void updateBalanceUI() {
         tvIncome.setText(String.format(Locale.getDefault(), "$%.2f", totalIncome));
@@ -238,8 +252,9 @@ public class HomeFragment extends Fragment {
         List<PieEntry> entries = new ArrayList<>();
         if (categorySums != null) {
             for (com.personal.finance.data.model.CategorySum sum : categorySums) {
-                if (sum.totalAmount > 0)
-                    entries.add(new PieEntry((float) sum.totalAmount, sum.category));
+                if (sum.getTotalAmount() > 0)
+                    entries.add(new PieEntry((float) sum.getTotalAmount(), sum.getCategory()));
+
             }
         }
 

@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.personal.finance.R;
-import com.personal.finance.data.model.User;
 import com.personal.finance.ui.viewmodel.FinanceViewModel;
 import com.personal.finance.utils.SessionManager;
 
@@ -50,11 +49,7 @@ public class ProfileFragment extends Fragment {
             String last = etLast.getText().toString();
             String pass = etPass.getText().toString();
 
-            if (!first.isEmpty() && !last.isEmpty() && !pass.isEmpty()) {
-                User user = new User(email, first, last, pass);
-                financeViewModel.updateUser(user);
-                Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
-            }
+
         });
 
         view.findViewById(R.id.btnLogoutProfile).setOnClickListener(v -> {

@@ -22,10 +22,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     private List<Transaction> transactions = new ArrayList<>();
     private OnActionClickListener actionListener;
+    private OnItemClickListener listener;
 
     public interface OnActionClickListener {
         void onEdit(Transaction transaction);
-
         void onDelete(Transaction transaction);
     }
 
@@ -33,7 +33,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         this.actionListener = listener;
     }
 
-    private OnItemClickListener listener;
+    public interface OnItemClickListener {
+        void onItemClick(Transaction transaction);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
@@ -46,18 +52,23 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         Transaction transaction = transactions.get(position);
-        holder.tvCategory.setText(transaction.category);
-        holder.tvAmount.setText(String.format(Locale.getDefault(), "$%.2f", transaction.amount));
-        holder.tvDescription.setText(transaction.description);
+
+        holder.tvCategory.setText(nullSafe(transaction.getCategory()));
+        holder.tvAmount.setText(String.format(Locale.getDefault(), "$%.2f", transaction.getAmount()));
+        holder.tvDescription.setText(nullSafe(transaction.getDescription()));
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        holder.tvDate.setText(sdf.format(new Date(transaction.date)));
+        holder.tvDate.setText(sdf.format(new Date(transaction.getDate())));
 
-        if ("INCOME".equals(transaction.type)) {
+        if ("INCOME".equals(transaction.getType())) {
             holder.tvAmount.setTextColor(Color.GREEN);
         } else {
             holder.tvAmount.setTextColor(Color.RED);
         }
+    }
+
+    private String nullSafe(String s) {
+        return s == null ? "" : s;
     }
 
     @Override
@@ -66,7 +77,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     }
 
     public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
+        this.transactions = (transactions == null) ? new ArrayList<>() : transactions;
         notifyDataSetChanged();
     }
 
@@ -79,6 +90,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
         public TransactionViewHolder(@NonNull View itemView) {
             super(itemView);
+
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvAmount = itemView.findViewById(R.id.tvAmount);
             tvDescription = itemView.findViewById(R.id.tvDescription);
@@ -108,13 +120,5 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                 }
             });
         }
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(Transaction transaction);
-    }
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
     }
 }

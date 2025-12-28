@@ -1,28 +1,36 @@
 package com.personal.finance.data.model;
 
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
+import lombok.Getter;
+import lombok.Setter;
 
-@Entity(tableName = "transactions", foreignKeys = @ForeignKey(entity = User.class, parentColumns = "email", childColumns = "userEmail", onDelete = ForeignKey.CASCADE), indices = {
-        @Index("userEmail") })
+@Getter
+@Setter
 public class Transaction {
-    @PrimaryKey(autoGenerate = true)
-    public long id;
-    public double amount;
-    public long date; // Timestamp
-    public String category;
-    public String description;
-    public String type; // "INCOME" or "EXPENSE"
-    public String userEmail;
 
-    public Transaction(double amount, long date, String category, String description, String type, String userEmail) {
+    private long id; // AUTOINCREMENT in SQLite
+    private double amount;
+    private long date; // timestamp
+    private String category;
+    private String description;
+    private String type; // INCOME / EXPENSE
+    private String userEmail;
+
+    public Transaction(long id, double amount, long date,
+                       String category, String description,
+                       String type, String userEmail) {
+        this.id = id;
         this.amount = amount;
         this.date = date;
         this.category = category;
         this.description = description;
         this.type = type;
         this.userEmail = userEmail;
+    }
+
+    // constructor for insert (no id yet)
+    public Transaction(double amount, long date,
+                       String category, String description,
+                       String type, String userEmail) {
+        this(0, amount, date, category, description, type, userEmail);
     }
 }

@@ -2,144 +2,138 @@ package com.personal.finance.data.repository;
 
 import android.app.Application;
 
-import androidx.lifecycle.LiveData;
-
-import com.personal.finance.data.AppDatabase;
-import com.personal.finance.data.dao.BudgetDao;
-import com.personal.finance.data.dao.CategoryDao;
-import com.personal.finance.data.dao.TransactionDao;
-import com.personal.finance.data.dao.UserDao;
 import com.personal.finance.data.model.Budget;
 import com.personal.finance.data.model.Category;
+import com.personal.finance.data.model.CategorySum;
 import com.personal.finance.data.model.Transaction;
-import com.personal.finance.data.model.User;
+import com.personal.finance.data.sqlite.BudgetDb;
+import com.personal.finance.data.sqlite.CategoryDb;
+import com.personal.finance.data.sqlite.TransactionDb;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FinanceRepository {
-    private UserDao userDao;
-    private TransactionDao transactionDao;
-    private BudgetDao budgetDao;
-    private CategoryDao categoryDao;
+
+    private final TransactionDb transactionDb;
+    private final BudgetDb budgetDb;
+    private final CategoryDb categoryDb;
+
+    // keep background executor (replacement for Room executor)
+    private final ExecutorService executor = Executors.newFixedThreadPool(2);
 
     public FinanceRepository(Application application) {
-        AppDatabase db = AppDatabase.getDatabase(application);
-        userDao = db.userDao();
-        transactionDao = db.transactionDao();
-        budgetDao = db.budgetDao();
-        categoryDao = db.categoryDao();
+        transactionDb = new TransactionDb(application);
+        budgetDb = new BudgetDb(application);
+        categoryDb = new CategoryDb(application);
     }
 
-    // User Operations
-    public void insertUser(User user) {
-        AppDatabase.databaseWriteExecutor.execute(() -> userDao.insert(user));
+    // ---------------- Transactions (read) ----------------
+    public List<Transaction> getAllTransactions(String email) {
+        return transactionDb.getAllTransactions(email);
     }
 
-    public LiveData<User> login(String email, String password) {
-        return userDao.login(email, password);
+    public List<Transaction> getIncomes(String email) {
+        return transactionDb.getIncomes(email);
     }
 
-    public User getUserByEmail(String email) {
-        // This should probably be LiveData or done asynchronously in a real app
-        // For simplicity in login check we might need it, but Dao returns LiveData
-        // usually.
-        // We will execute this on background thread if needed or use the LiveData
-        // login.
-        return userDao.getUserByEmail(email);
+    public List<Transaction> getExpenses(String email) {
+        return transactionDb.getExpenses(email);
     }
 
-    public void updateUser(User user) {
-        AppDatabase.databaseWriteExecutor
-                .execute(() -> userDao.updateUser(user.email, user.firstName, user.lastName, user.password));
+    public double getTotalIncome(String email) {
+        return transactionDb.getTotalIncome(email);
     }
 
-    // Transaction Operations
-    public LiveData<List<Transaction>> getAllTransactions(String email) {
-        return transactionDao.getAllTransactions(email);
+    public double getTotalExpense(String email) {
+        return transactionDb.getTotalExpense(email);
     }
 
-    public LiveData<Double> getTotalIncome(String email) {
-        return transactionDao.getTotalIncome(email);
+    public double getTotalIncomeByDate(String email, long startDate, long endDate) {
+        return transactionDb.getTotalIncomeByDate(email, startDate, endDate);
     }
 
-    public LiveData<Double> getTotalExpense(String email) {
-        return transactionDao.getTotalExpense(email);
+    public double getTotalExpenseByDate(String email, long startDate, long endDate) {
+        return transactionDb.getTotalExpenseByDate(email, startDate, endDate);
     }
 
-    // Filtered Statistics
-    public LiveData<Double> getTotalIncomeByDate(String email, long startDate, long endDate) {
-        return transactionDao.getTotalIncomeByDate(email, startDate, endDate);
+    public List<CategorySum> getCategoryGroupedSums(String email, String type, long startDate, long endDate) {
+        return transactionDb.getCategoryGroupedSums(email, type, startDate, endDate);
     }
 
-    public LiveData<Double> getTotalExpenseByDate(String email, long startDate, long endDate) {
-        return transactionDao.getTotalExpenseByDate(email, startDate, endDate);
-    }
-
-    public LiveData<List<com.personal.finance.data.model.CategorySum>> getCategoryGroupedSums(String email, String type,
-            long startDate, long endDate) {
-        return transactionDao.getCategoryGroupedSums(email, type, startDate, endDate);
-    }
-
-    // Category Operations
-    public void insertCategory(Category category) {
-        AppDatabase.databaseWriteExecutor.execute(() -> categoryDao.insert(category));
-    }
-
-    public void deleteCategory(Category category) {
-        AppDatabase.databaseWriteExecutor.execute(() -> categoryDao.delete(category));
-    }
-
-    public LiveData<List<Category>> getAllCategories(String email) {
-        return categoryDao.getAllCategories(email);
-    }
-
-    public LiveData<List<Category>> getCategoriesByType(String email, String type) {
-        return categoryDao.getCategoriesByType(email, type);
-    }
-
+    // ---------------- Transactions (write async) ----------------
     public void insertTransaction(Transaction transaction) {
-        AppDatabase.databaseWriteExecutor.execute(() -> transactionDao.insert(transaction));
+        executor.execute(() -> transactionDb.insert(transaction));
     }
 
     public void deleteTransaction(Transaction transaction) {
-        AppDatabase.databaseWriteExecutor.execute(() -> transactionDao.delete(transaction));
+        executor.execute(() -> transactionDb.deleteById(transaction.getId()));
     }
 
     public void updateTransaction(Transaction transaction) {
-        AppDatabase.databaseWriteExecutor.execute(() -> transactionDao.update(transaction));
+        executor.execute(() -> transactionDb.update(transaction));
     }
 
-    // Budget Operations
-    public LiveData<List<Budget>> getAllBudgets(String email) {
-        return budgetDao.getAllBudgets(email);
+    //get all transactions as List
+    public List<Transaction> getAllTransactionsList(String email) {
+        return transactionDb.getAllTransactions(email);
+    }
+
+    // ---------------- Categories ----------------
+    public List<Category> getAllCategories(String email) {
+        return categoryDb.getAllCategories(email);
+    }
+
+    public List<Category> getCategoriesByType(String email, String type) {
+        return categoryDb.getCategoriesByType(email, type);
+    }
+
+    public void insertCategory(Category category) {
+        executor.execute(() -> categoryDb.insert(category));
+    }
+
+    public void deleteCategory(Category category) {
+        // if your UI has id use deleteById(category.getId())
+        executor.execute(() -> categoryDb.delete(category));
+    }
+
+    // ---------------- Budgets ----------------
+    public List<Budget> getAllBudgets(String email) {
+        return budgetDb.getAllBudgets(email);
     }
 
     public void insertBudget(Budget budget) {
-        AppDatabase.databaseWriteExecutor.execute(() -> budgetDao.insert(budget));
+        executor.execute(() -> budgetDb.insert(budget));
     }
 
     public void deleteBudget(Budget budget) {
-        AppDatabase.databaseWriteExecutor.execute(() -> budgetDao.delete(budget));
+        executor.execute(() -> budgetDb.deleteById(budget.getId()));
     }
 
-    public void prePopulateCategories(String email) {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            if (categoryDao.getCategoryCount(email) == 0) {
-                // Income Categories
-                categoryDao.insert(new Category("Salary", "INCOME", email));
-                categoryDao.insert(new Category("Scholarship", "INCOME", email));
-                categoryDao.insert(new Category("Gift", "INCOME", email));
-                categoryDao.insert(new Category("Interest", "INCOME", email));
+    public void updateBudget(Budget budget) {
+        executor.execute(() -> budgetDb.update(budget));
+    }
 
-                // Expense Categories
-                categoryDao.insert(new Category("Groceries", "EXPENSE", email));
-                categoryDao.insert(new Category("Rent", "EXPENSE", email));
-                categoryDao.insert(new Category("Food", "EXPENSE", email));
-                categoryDao.insert(new Category("Bills", "EXPENSE", email));
-                categoryDao.insert(new Category("Entertainment", "EXPENSE", email));
-                categoryDao.insert(new Category("Transport", "EXPENSE", email));
-                categoryDao.insert(new Category("Health", "EXPENSE", email));
-                categoryDao.insert(new Category("Shopping", "EXPENSE", email));
+    // ---------------- Pre-populate categories ----------------
+    public void prePopulateCategories(String email) {
+        executor.execute(() -> {
+            if (categoryDb.getCategoryCount(email) == 0) {
+                // Income
+                categoryDb.insert(new Category("Salary", "INCOME", email));
+                categoryDb.insert(new Category("Scholarship", "INCOME", email));
+                categoryDb.insert(new Category("Gift", "INCOME", email));
+                categoryDb.insert(new Category("Interest", "INCOME", email));
+
+                // Expense
+                categoryDb.insert(new Category("Groceries", "EXPENSE", email));
+                categoryDb.insert(new Category("Rent", "EXPENSE", email));
+                categoryDb.insert(new Category("Food", "EXPENSE", email));
+                categoryDb.insert(new Category("Bills", "EXPENSE", email));
+                categoryDb.insert(new Category("Entertainment", "EXPENSE", email));
+                categoryDb.insert(new Category("Transport", "EXPENSE", email));
+                categoryDb.insert(new Category("Health", "EXPENSE", email));
+                categoryDb.insert(new Category("Shopping", "EXPENSE", email));
             }
         });
     }

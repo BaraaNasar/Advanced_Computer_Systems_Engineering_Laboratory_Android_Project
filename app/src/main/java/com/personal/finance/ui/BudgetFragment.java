@@ -21,14 +21,17 @@ import com.personal.finance.ui.adapter.BudgetAdapter;
 import com.personal.finance.ui.viewmodel.FinanceViewModel;
 import com.personal.finance.utils.SessionManager;
 
+import java.util.List;
+
 public class BudgetFragment extends Fragment {
 
     private FinanceViewModel financeViewModel;
     private BudgetAdapter adapter;
     private SessionManager sessionManager;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-            ViewGroup container, Bundle savedInstanceState) {
+                             ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_budget, container, false);
     }
 
@@ -39,6 +42,11 @@ public class BudgetFragment extends Fragment {
         sessionManager = new SessionManager(requireContext());
         String email = sessionManager.getUserEmail();
 
+        if (email == null) {
+            Toast.makeText(requireContext(), "Please login again", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         RecyclerView recyclerView = view.findViewById(R.id.rvBudgets);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new BudgetAdapter();
@@ -46,12 +54,16 @@ public class BudgetFragment extends Fragment {
 
         financeViewModel = new ViewModelProvider(this).get(FinanceViewModel.class);
 
-        financeViewModel.getBudgets(email).observe(getViewLifecycleOwner(), budgets -> {
-            adapter.setBudgets(budgets);
-            // Here we could also check logic for alerts if spending > budget
-        });
+        loadBudgets(email);
 
         view.findViewById(R.id.fabAddBudget).setOnClickListener(v -> showAddDialog(email));
+    }
+
+    private void loadBudgets(String email) {
+        new Thread(() -> {
+            List<Budget> budgets = financeViewModel.getBudgets(email); // returns List now
+            requireActivity().runOnUiThread(() -> adapter.setBudgets(budgets));
+        }).start();
     }
 
     private void showAddDialog(String email) {
@@ -65,13 +77,24 @@ public class BudgetFragment extends Fragment {
         EditText etLimit = view.findViewById(R.id.etBudgetLimit);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
-            String category = etCategory.getText().toString();
-            String limitStr = etLimit.getText().toString();
+            String category = etCategory.getText().toString().trim();
+            String limitStr = etLimit.getText().toString().trim();
 
             if (!category.isEmpty() && !limitStr.isEmpty()) {
-                double limit = Double.parseDouble(limitStr);
+                double limit;
+                try {
+                    limit = Double.parseDouble(limitStr);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Invalid limit value", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Budget budget = new Budget(category, limit, email);
                 financeViewModel.addBudget(budget);
+
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .postDelayed(() -> loadBudgets(email), 150);
+
             } else {
                 Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
             }

@@ -120,27 +120,46 @@ public class SettingsFragment extends Fragment {
 
         String email = sessionManager.getUserEmail();
 
-        // Function to refresh list
-        Runnable refreshList = () -> {
-            financeViewModel.getCategoriesByType(email, currentType[0]).observe(getViewLifecycleOwner(), categories -> {
-                adapter.clear();
-                for (com.personal.finance.data.model.Category c : categories) {
-                    adapter.add(c.name);
-                }
-                adapter.notifyDataSetChanged();
+        final java.util.List<com.personal.finance.data.model.Category>[] currentList =
+                new java.util.List[]{ new java.util.ArrayList<>() };
 
-                // Handle deletion on click
-                listView.setOnItemClickListener((parent, v, position, id) -> {
-                    com.personal.finance.data.model.Category toDelete = categories.get(position);
-                    new android.app.AlertDialog.Builder(requireContext())
-                            .setTitle("Delete Category")
-                            .setMessage("Delete " + toDelete.name + "?")
-                            .setPositiveButton("Yes", (d, w) -> financeViewModel.deleteCategory(toDelete))
-                            .setNegativeButton("No", null)
-                            .show();
+        Runnable refreshList = () -> {
+            new Thread(() -> {
+                java.util.List<com.personal.finance.data.model.Category> categories =
+                        financeViewModel.getCategoriesByType(email, currentType[0]); // List now
+
+                currentList[0].clear();
+                currentList[0].addAll(categories);
+
+                java.util.List<String> names = new java.util.ArrayList<>();
+                for (com.personal.finance.data.model.Category c : categories) {
+                    names.add(c.getName()); // getters
+                }
+
+                requireActivity().runOnUiThread(() -> {
+                    adapter.clear();
+                    adapter.addAll(names);
+                    adapter.notifyDataSetChanged();
                 });
-            });
+            }).start();
         };
+
+        listView.setOnItemClickListener((parent, v, position, id) -> {
+            if (position < 0 || position >= currentList[0].size()) return;
+
+            com.personal.finance.data.model.Category toDelete = currentList[0].get(position);
+            new android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Delete Category")
+                    .setMessage("Delete " + toDelete.getName() + "?")
+                    .setPositiveButton("Yes", (d, w) -> {
+                        financeViewModel.deleteCategory(toDelete);
+                        new android.os.Handler(android.os.Looper.getMainLooper())
+                                .postDelayed(refreshList, 150);
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        });
+
 
         // Initial Load
         refreshList.run();
@@ -168,8 +187,12 @@ public class SettingsFragment extends Fragment {
             if (!name.isEmpty()) {
                 com.personal.finance.data.model.Category newCat = new com.personal.finance.data.model.Category(name,
                         currentType[0], email);
+
                 financeViewModel.insertCategory(newCat);
                 etNewCategory.setText("");
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .postDelayed(refreshList, 150);
+
             }
         });
 

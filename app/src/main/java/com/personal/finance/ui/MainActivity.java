@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sessionManager = new SessionManager(this);
-        // ضبط الثيم حسب القيمة المخزنة
+
         if ("DARK".equals(sessionManager.getTheme())) {
             androidx.appcompat.app.AppCompatDelegate
                     .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
@@ -40,6 +40,14 @@ public class MainActivity extends AppCompatActivity {
                     .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
         super.onCreate(savedInstanceState);
+
+        if (!sessionManager.isLoggedIn()) {
+            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
+            finish();
+            return;
+        }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -76,7 +84,10 @@ public class MainActivity extends AppCompatActivity {
         // Handle Logout manually as it's not a destination
         navigationView.getMenu().findItem(R.id.nav_logout).setOnMenuItemClickListener(item -> {
             sessionManager.logout();
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
+            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
             finish();
             return true;
         });

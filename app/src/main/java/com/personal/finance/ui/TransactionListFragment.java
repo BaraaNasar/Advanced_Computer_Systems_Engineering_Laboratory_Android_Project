@@ -30,8 +30,9 @@ public class TransactionListFragment extends Fragment {
     private TransactionAdapter adapter;
     private SessionManager sessionManager;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-            ViewGroup container, Bundle savedInstanceState) {
+                             ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_transaction_list, container, false);
     }
 
@@ -49,13 +50,8 @@ public class TransactionListFragment extends Fragment {
 
         financeViewModel = new ViewModelProvider(this).get(FinanceViewModel.class);
 
-        // Show ALL transactions
-        financeViewModel.getTransactions(email).observe(getViewLifecycleOwner(), transactions -> {
-            adapter.setTransactions(transactions);
-        });
+        loadTransactions(email);
 
-        // Hide FAB as this is just for viewing history, or allow adding from here?
-        // Let's keep it simple and hide FAB or show it and default to Expense.
         view.findViewById(R.id.fabAdd).setVisibility(View.GONE);
 
         adapter.setOnActionClickListener(new TransactionAdapter.OnActionClickListener() {
@@ -69,11 +65,23 @@ public class TransactionListFragment extends Fragment {
                 new AlertDialog.Builder(getContext())
                         .setTitle("Delete Transaction")
                         .setMessage("Are you sure you want to delete this transaction?")
-                        .setPositiveButton("Delete", (dialog, which) -> financeViewModel.deleteTransaction(transaction))
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            financeViewModel.deleteTransaction(transaction);
+                            loadTransactions(email);
+                        })
                         .setNegativeButton("Cancel", null)
                         .show();
             }
         });
+    }
+
+    private void loadTransactions(String email) {
+        if (email == null) return;
+
+        new Thread(() -> {
+            List<Transaction> list = financeViewModel.getTransactionsList(email);
+            requireActivity().runOnUiThread(() -> adapter.setTransactions(list));
+        }).start();
     }
 
     private void showEditDialog(String email, Transaction existingTransaction) {
@@ -87,43 +95,63 @@ public class TransactionListFragment extends Fragment {
         android.widget.Spinner spinnerCategory = view.findViewById(R.id.spinnerCategory);
         EditText etDescription = view.findViewById(R.id.etDescription);
 
-        etAmount.setText(String.valueOf(existingTransaction.amount));
-        etDescription.setText(existingTransaction.description);
+        etAmount.setText(String.valueOf(existingTransaction.getAmount()));
+        etDescription.setText(existingTransaction.getDescription());
 
-        // Populate Spinner based on type
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(
+        android.widget.ArrayAdapter<String> catAdapter = new android.widget.ArrayAdapter<>(
                 requireContext(), android.R.layout.simple_spinner_item, new ArrayList<>());
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategory.setAdapter(adapter);
+        catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(catAdapter);
 
-        financeViewModel.getCategoriesByType(email, existingTransaction.type).observe(getViewLifecycleOwner(),
-                categories -> {
-                    adapter.clear();
-                    int selectedIndex = 0;
-                    for (int i = 0; i < categories.size(); i++) {
-                        com.personal.finance.data.model.Category c = categories.get(i);
-                        adapter.add(c.name);
-                        if (c.name.equals(existingTransaction.category)) {
-                            selectedIndex = i;
-                        }
-                    }
-                    adapter.notifyDataSetChanged();
-                    spinnerCategory.setSelection(selectedIndex);
-                });
+        new Thread(() -> {
+            String tType = existingTransaction.getType();
+            if (tType == null) tType = "EXPENSE";
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String amountStr = etAmount.getText().toString();
-            String description = etDescription.getText().toString();
-            String category = null;
-            if (spinnerCategory.getSelectedItem() != null) {
-                category = spinnerCategory.getSelectedItem().toString();
+            List<com.personal.finance.data.model.Category> categories =
+                    financeViewModel.getCategoriesByType(email, tType);
+
+            List<String> names = new ArrayList<>();
+            int selectedIndex = 0;
+
+            for (int i = 0; i < categories.size(); i++) {
+                String name = categories.get(i).getName();
+                names.add(name);
+                if (name.equals(existingTransaction.getCategory())) {
+                    selectedIndex = i;
+                }
             }
 
+            int finalSelectedIndex = selectedIndex;
+            requireActivity().runOnUiThread(() -> {
+                catAdapter.clear();
+                catAdapter.addAll(names);
+                catAdapter.notifyDataSetChanged();
+                if (!names.isEmpty()) spinnerCategory.setSelection(finalSelectedIndex);
+            });
+        }).start();
+
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String amountStr = etAmount.getText().toString().trim();
+            String description = etDescription.getText().toString().trim();
+            String category = spinnerCategory.getSelectedItem() != null
+                    ? spinnerCategory.getSelectedItem().toString()
+                    : null;
+
             if (!amountStr.isEmpty() && category != null) {
-                existingTransaction.amount = Double.parseDouble(amountStr);
-                existingTransaction.category = category;
-                existingTransaction.description = description;
+                double amount;
+                try {
+                    amount = Double.parseDouble(amountStr);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                existingTransaction.setAmount(amount);
+                existingTransaction.setCategory(category);
+                existingTransaction.setDescription(description);
+
                 financeViewModel.updateTransaction(existingTransaction);
+                loadTransactions(email);
             } else {
                 Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
             }
