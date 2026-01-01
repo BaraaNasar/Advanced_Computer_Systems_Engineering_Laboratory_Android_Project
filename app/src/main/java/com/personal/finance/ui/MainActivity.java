@@ -3,7 +3,6 @@ package com.personal.finance.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -60,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         // Pass each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_income, R.id.nav_history, R.id.nav_gallery, R.id.nav_slideshow,
+                R.id.nav_home, R.id.nav_income, R.id.nav_history, R.id.nav_expenses, R.id.nav_budgets,
                 R.id.nav_profile,
                 R.id.nav_settings)
                 .setOpenableLayout(drawer)

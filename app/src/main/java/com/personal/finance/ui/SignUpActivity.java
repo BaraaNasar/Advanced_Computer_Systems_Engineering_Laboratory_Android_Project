@@ -70,7 +70,6 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        // منع تكرار البريد (PK)
         if (userDb.userExists(email)) {
             tilEmail.setError("Email already registered");
             return;
@@ -79,7 +78,7 @@ public class SignUpActivity extends AppCompatActivity {
         boolean inserted = userDb.insertUser(email, firstName, lastName, password);
         if (inserted) {
             Toast.makeText(this, "Registration Successful. Please sign in.", Toast.LENGTH_SHORT).show();
-            finish(); // يرجع لـ Login
+            finish();
         } else {
             Toast.makeText(this, "Registration Failed", Toast.LENGTH_SHORT).show();
         }
@@ -96,22 +95,34 @@ public class SignUpActivity extends AppCompatActivity {
     private boolean validateInput(String first, String last, String email, String pass, String confirm) {
         boolean isValid = true;
 
-        if (first.length() < 3 || first.length() > 10) {
-            tilFirst.setError("Required (3-10 characters)");
+        if (TextUtils.isEmpty(first)) {
+            tilFirst.setError("First name is required");
+            isValid = false;
+        } else if (first.length() < 3 || first.length() > 10) {
+            tilFirst.setError("Must be 3-10 characters");
             isValid = false;
         }
 
-        if (last.length() < 3 || last.length() > 10) {
+        if (TextUtils.isEmpty(last)) {
+            tilLast.setError("Last name is required");
+            isValid = false;
+        } else if (last.length() < 3 || last.length() > 10) {
             tilLast.setError("Required (3-10 characters)");
             isValid = false;
         }
 
-        if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (TextUtils.isEmpty(email)) {
+            tilEmail.setError("Email is required");
+            isValid = false;
+        } else if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tilEmail.setError("Invalid Email format");
             isValid = false;
         }
 
-        if (!isValidPassword(pass)) {
+        if (TextUtils.isEmpty(pass)) {
+            tilPass.setError("Password is required");
+            isValid = false;
+        } else if (!isValidPassword(pass)) {
             tilPass.setError("6-12 chars, 1 digit, 1 lower, 1 upper");
             isValid = false;
         }
@@ -120,7 +131,7 @@ public class SignUpActivity extends AppCompatActivity {
             tilConfirm.setError("Confirmation required");
             isValid = false;
         } else if (!pass.equals(confirm)) {
-            tilConfirm.setError("Passwords do not match");
+            tilConfirm.setError("Password do not match");
             isValid = false;
         }
 

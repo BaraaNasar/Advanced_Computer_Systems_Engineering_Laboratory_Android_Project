@@ -127,7 +127,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void startMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
-        // مهم عشان ما يرجع بالـ back بعد login/logout
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

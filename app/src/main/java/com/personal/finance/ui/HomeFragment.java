@@ -34,6 +34,8 @@ public class HomeFragment extends Fragment {
     private TextView tvTotalBalance, tvIncome, tvExpense, tvDateRange;
     private PieChart pieChart;
     private Spinner spinnerPeriod;
+    private com.google.android.material.button.MaterialButtonToggleGroup toggleChartType;
+    private String chartType = "EXPENSE"; // default
 
     private double totalIncome = 0;
     private double totalExpense = 0;
@@ -59,6 +61,24 @@ public class HomeFragment extends Fragment {
         tvDateRange = view.findViewById(R.id.tvDateRange);
         spinnerPeriod = view.findViewById(R.id.spinnerPeriod);
         pieChart = view.findViewById(R.id.pieChart);
+
+        toggleChartType = view.findViewById(R.id.toggleChartType);
+
+// default selected = Expense
+        toggleChartType.check(R.id.btnToggleExpense);
+
+        toggleChartType.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+
+            if (checkedId == R.id.btnToggleIncome) {
+                chartType = "INCOME";
+                pieChart.setCenterText("Income");
+            } else {
+                chartType = "EXPENSE";
+                pieChart.setCenterText("Expenses");
+            }
+            loadData(); // refresh chart for selected type
+        });
 
         setupSpinner();
 
@@ -186,36 +206,59 @@ public class HomeFragment extends Fragment {
         tvDateRange
                 .setText(sdf.format(new java.util.Date(startDate)) + " - " + sdf.format(new java.util.Date(endDate)));
     }
-
     private void showDatePicker() {
-        // Simple implementation: Just pick start date, then maybe assume end is today
-        // or pick end date.
-        // For simplicity, let's pick Single date or Range.
-        // Let's implement basic logic: Pick Start Date, then assume 7 days or ask for
-        // End Date.
-        // Actually, let's just use MaterialDatePicker if available, or simple
-        // DatePickerDialog for Start Date.
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        final long maxDate = endOfDay(System.currentTimeMillis()); // آخر لحظة باليوم الحالي
 
-        java.util.Calendar calendar = java.util.Calendar.getInstance();
-        new android.app.DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
-            java.util.Calendar startCal = java.util.Calendar.getInstance();
-            startCal.set(year, month, dayOfMonth, 0, 0, 0);
-            startCal.set(java.util.Calendar.MILLISECOND, 0);
-            startDate = startCal.getTimeInMillis();
+        // Pick START
+        android.app.DatePickerDialog startDialog =
+                new android.app.DatePickerDialog(requireContext(), (v1, y1, m1, d1) -> {
 
-            // endDate
-            endDate = endOfDay(System.currentTimeMillis());
+                    java.util.Calendar startCal = java.util.Calendar.getInstance();
+                    startCal.set(y1, m1, d1, 0, 0, 0);
+                    startCal.set(java.util.Calendar.MILLISECOND, 0);
+                    final long startPicked = startCal.getTimeInMillis();
 
+                    // Pick END
+                    java.util.Calendar now2 = java.util.Calendar.getInstance();
+                    android.app.DatePickerDialog endDialog =
+                            new android.app.DatePickerDialog(requireContext(), (v2, y2, m2, d2) -> {
 
-            if (endDate < startDate) {
-                endDate = endOfDay(startDate);
-            }
+                                java.util.Calendar endCal = java.util.Calendar.getInstance();
+                                endCal.set(y2, m2, d2, 23, 59, 59);
+                                endCal.set(java.util.Calendar.MILLISECOND, 999);
+                                final long endPicked = endCal.getTimeInMillis();
 
-            spinnerPeriod.setSelection(3); // Custom
-            updateDateDisplay();
-            loadData();
-        }, calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH),
-                calendar.get(java.util.Calendar.DAY_OF_MONTH)).show();
+                                // normalize order
+                                final long normStart = Math.min(startPicked, endPicked);
+                                final long normEnd = Math.max(startPicked, endPicked);
+
+                                startDate = startOfDay(normStart);
+                                endDate = endOfDay(normEnd);
+
+                                // set spinner to Custom
+                                String[] periods = getResources().getStringArray(R.array.periods_array);
+                                for (int i = 0; i < periods.length; i++) {
+                                    if ("Custom".equals(periods[i])) {
+                                        spinnerPeriod.setSelection(i);
+                                        break;
+                                    }
+                                }
+
+                                updateDateDisplay();
+                                loadData();
+
+                            }, now2.get(java.util.Calendar.YEAR), now2.get(java.util.Calendar.MONTH),
+                                    now2.get(java.util.Calendar.DAY_OF_MONTH));
+
+                    endDialog.getDatePicker().setMaxDate(maxDate);
+                    endDialog.show();
+
+                }, now.get(java.util.Calendar.YEAR), now.get(java.util.Calendar.MONTH),
+                        now.get(java.util.Calendar.DAY_OF_MONTH));
+
+        startDialog.getDatePicker().setMaxDate(maxDate);
+        startDialog.show();
     }
 
     private void loadData() {
@@ -227,7 +270,7 @@ public class HomeFragment extends Fragment {
         new Thread(() -> {
             double income = txDb.getTotalIncomeByDate(email, startDate, endDate);
             double expense = txDb.getTotalExpenseByDate(email, startDate, endDate);
-            List<CategorySum> sums = txDb.getCategoryGroupedSums(email, "EXPENSE", startDate, endDate);
+            List<CategorySum> sums = txDb.getCategoryGroupedSums(email, chartType, startDate, endDate);
 
             requireActivity().runOnUiThread(() -> {
                 totalIncome = income;
@@ -260,7 +303,10 @@ public class HomeFragment extends Fragment {
 
         if (entries.isEmpty()) {
             pieChart.clear();
-            pieChart.setNoDataText("No expense data recorded yet");
+            pieChart.setNoDataText(chartType.equals("INCOME")
+                    ? "No income data recorded yet"
+                    : "No expense data recorded yet");
+
             pieChart.setNoDataTextColor(getResources().getColor(R.color.text_secondary));
             pieChart.invalidate();
             return;

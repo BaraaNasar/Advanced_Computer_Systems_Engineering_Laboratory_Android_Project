@@ -41,13 +41,13 @@
 
                 <Spinner
                     android:id="@+id/spinnerPeriod"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="117dp"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:entries="@array/periods_array"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
-                    android:entries="@array/periods_array"
-                    android:spinnerMode="dropdown"
-                    android:background="@android:color/transparent"/>
+                    android:spinnerMode="dropdown" />
             </com.google.android.material.card.MaterialCardView>
         </RelativeLayout>
 
@@ -239,15 +239,33 @@
         </LinearLayout>
 
         <!-- Chart Section -->
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleChartType"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="16dp"
-            android:text="Spending Analytics"
-            android:textColor="?android:textColorPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="24dp"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleExpense"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Expense"
+                android:checkable="true" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleIncome"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Income"
+                android:checkable="true" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
