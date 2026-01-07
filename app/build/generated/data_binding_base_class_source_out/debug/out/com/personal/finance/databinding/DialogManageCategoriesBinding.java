@@ -4,13 +4,13 @@ package com.personal.finance.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.personal.finance.R;
@@ -23,7 +23,7 @@ public final class DialogManageCategoriesBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
-  public final Button btnAddCategory;
+  public final MaterialButton btnAddCategory;
 
   @NonNull
   public final TextInputEditText etNewCategory;
@@ -35,7 +35,7 @@ public final class DialogManageCategoriesBinding implements ViewBinding {
   public final TabLayout tabLayout;
 
   private DialogManageCategoriesBinding(@NonNull LinearLayout rootView,
-      @NonNull Button btnAddCategory, @NonNull TextInputEditText etNewCategory,
+      @NonNull MaterialButton btnAddCategory, @NonNull TextInputEditText etNewCategory,
       @NonNull ListView listViewCategories, @NonNull TabLayout tabLayout) {
     this.rootView = rootView;
     this.btnAddCategory = btnAddCategory;
@@ -72,7 +72,7 @@ public final class DialogManageCategoriesBinding implements ViewBinding {
     int id;
     missingId: {
       id = R.id.btnAddCategory;
-      Button btnAddCategory = ViewBindings.findChildViewById(rootView, id);
+      MaterialButton btnAddCategory = ViewBindings.findChildViewById(rootView, id);
       if (btnAddCategory == null) {
         break missingId;
       }

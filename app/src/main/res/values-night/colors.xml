@@ -7,4 +7,21 @@
     <color name="text_secondary_dark">#94A3B8</color> <!-- Muted Slate -->
     
     <color name="input_background_color">#1A2421</color>
+
+    <!-- Auth Screen Semantic Colors (Night) -->
+    <color name="auth_header_bg">#1B4332</color>
+    <color name="auth_container_bg">#0F1713</color>
+    <color name="auth_input_bg">#1A2421</color>
+    <color name="auth_input_text">#F1F5F9</color>
+    <color name="auth_label_text">#D1FAE5</color>
+    
+    <!-- Override primary_light for Night Mode (Dark Menu Background) -->
+    <color name="primary_light">#1A2421</color>
+    
+    <!-- Navigation Item Selected Color (Emerald in Dark Mode) -->
+    <color name="nav_item_selected">@color/primary</color>
+
+    <!-- Compatibility -->
+    <color name="text_primary">@color/text_primary_dark</color>
+    <color name="text_secondary">@color/text_secondary_dark</color>
 </resources>

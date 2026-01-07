@@ -31,6 +31,15 @@
     <color name="teal_200">@color/secondary</color>
     <color name="teal_700">@color/secondary_dark</color>
     
+    <!-- Auth Screen Semantic Colors -->
+    <color name="auth_header_bg">@color/primary</color>
+    <color name="auth_container_bg">@color/primary_light</color>
+    <color name="auth_input_bg">#E8F5E9</color>
+    <color name="auth_input_text">@color/primary_dark</color>
+    <color name="auth_label_text">@color/primary_dark</color>
+    
+    <color name="nav_item_selected">@color/primary_dark</color>
+
     <!-- Legacy compatibility -->
     <color name="income_green">@color/color_income</color>
     <color name="expense_red">@color/color_expense</color>

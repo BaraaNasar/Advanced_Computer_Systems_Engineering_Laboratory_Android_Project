@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.personal.finance.app-mergeDebugResources-45:/values-bn/values-bn.xml",
+            "outputFile": "com.personal.finance.app-mergeDebugResources-42:/values-bn/values-bn.xml",
             "map": [
                 {
                     "source": "C:\\Users\\USER\\.gradle\\caches\\transforms-3\\012e3162c1d7ad0cadc48064dbdfa1f8\\transformed\\navigation-ui-2.7.0\\res\\values-bn\\values-bn.xml",

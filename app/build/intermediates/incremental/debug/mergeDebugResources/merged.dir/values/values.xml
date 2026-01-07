@@ -646,6 +646,11 @@
     <color name="accent_material_light">@color/material_deep_teal_500</color>
     <color name="androidx_core_ripple_material_light">#1f000000</color>
     <color name="androidx_core_secondary_text_default_material_light">#8a000000</color>
+    <color name="auth_container_bg">@color/primary_light</color>
+    <color name="auth_header_bg">@color/primary</color>
+    <color name="auth_input_bg">#E8F5E9</color>
+    <color name="auth_input_text">@color/primary_dark</color>
+    <color name="auth_label_text">@color/primary_dark</color>
     <color name="background_floating_material_dark">@color/material_grey_800</color>
     <color name="background_floating_material_light">@android:color/white</color>
     <color name="background_light">#F8FAFC</color>
@@ -951,6 +956,7 @@
     <color name="mtrl_textinput_filled_box_default_background_color">#0A000000</color>
     <color name="mtrl_textinput_focused_box_stroke_color">#00000000</color>
     <color name="mtrl_textinput_hovered_box_stroke_color">#DE000000</color>
+    <color name="nav_item_selected">@color/primary_dark</color>
     <color name="notification_action_color_filter">#ffffffff</color>
     <color name="notification_icon_bg_color">#ff9e9e9e</color>
     <color name="primary">#48C67D</color>
@@ -2057,6 +2063,7 @@
     <string description="Suffix for time in 12-hour standard, after noon. [CHAR_LIMIT=2]" name="material_timepicker_pm">PM</string>
     <string description="Title for the dialog with a time picker. [CHAR_LIMIT=32]" name="material_timepicker_select_time">Select time</string>
     <string name="material_timepicker_text_input_mode_description">Switch to text input mode for the time input.</string>
+    <string name="menu_account">Account</string>
     <string name="menu_budget">Budgets &amp; Goals</string>
     <string name="menu_expenses">Expenses</string>
     <string name="menu_history">History</string>
@@ -5527,6 +5534,10 @@
     </style>
     <style name="CardView.Light">
         <item name="cardBackgroundColor">@color/cardview_light_background</item>
+    </style>
+    <style name="CustomAlertDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="background">@drawable/bg_dialog_rounded</item>
     </style>
     <style name="MaterialAlertDialog.Material3" parent="MaterialAlertDialog.MaterialComponents">
     <item name="enforceMaterialTheme">true</item>

@@ -21,7 +21,9 @@ import com.personal.finance.ui.adapter.BudgetAdapter;
 import com.personal.finance.ui.viewmodel.FinanceViewModel;
 import com.personal.finance.utils.SessionManager;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BudgetFragment extends Fragment {
 
@@ -31,7 +33,7 @@ public class BudgetFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+            ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_budget, container, false);
     }
 
@@ -61,8 +63,36 @@ public class BudgetFragment extends Fragment {
 
     private void loadBudgets(String email) {
         new Thread(() -> {
-            List<Budget> budgets = financeViewModel.getBudgets(email); // returns List now
-            requireActivity().runOnUiThread(() -> adapter.setBudgets(budgets));
+            List<Budget> budgets = financeViewModel.getBudgets(email);
+
+            // Calculate spent amounts for each budget
+            Map<String, Double> spentAmounts = new HashMap<>();
+            for (Budget budget : budgets) {
+                double spent = financeViewModel.getSpentAmountForCategory(email, budget.getCategory());
+                spentAmounts.put(budget.getCategory(), spent);
+            }
+
+            requireActivity().runOnUiThread(() -> {
+                adapter.setBudgets(budgets);
+                adapter.setSpentAmounts(spentAmounts);
+
+                // Show alerts for budgets exceeding thresholds
+                for (Budget budget : budgets) {
+                    double spent = spentAmounts.get(budget.getCategory());
+                    double limit = budget.getLimitAmount();
+                    int percentage = (int) ((spent / limit) * 100);
+
+                    if (percentage >= 100) {
+                        Toast.makeText(requireContext(),
+                                budget.getCategory() + " budget exceeded! (" + percentage + "%)",
+                                Toast.LENGTH_LONG).show();
+                    } else if (percentage >= 50) {
+                        Toast.makeText(requireContext(),
+                                budget.getCategory() + " budget alert: " + percentage + "% used",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }).start();
     }
 

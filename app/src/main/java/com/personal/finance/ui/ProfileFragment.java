@@ -43,13 +43,27 @@ public class ProfileFragment extends Fragment {
         // Note: we should fetch current user data to populate fields.
         // For now, we allow updating blindly or assuming user knows what they put.
         // In a real app, we would observe getUser(email).
+        com.personal.finance.data.model.User currentUser = financeViewModel.getUser(email);
+        if (currentUser != null) {
+            etFirst.setText(currentUser.getFirstName());
+            etLast.setText(currentUser.getLastName());
+            etPass.setText(currentUser.getPassword());
+        }
 
         view.findViewById(R.id.btnSaveProfile).setOnClickListener(v -> {
             String first = etFirst.getText().toString();
             String last = etLast.getText().toString();
             String pass = etPass.getText().toString();
 
+            if (first.isEmpty() || last.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            com.personal.finance.data.model.User updatedUser = new com.personal.finance.data.model.User(email, first,
+                    last, pass);
+            financeViewModel.updateUser(updatedUser);
+            Toast.makeText(requireContext(), "Profile Updated Successfully", Toast.LENGTH_SHORT).show();
         });
 
         view.findViewById(R.id.btnLogoutProfile).setOnClickListener(v -> {

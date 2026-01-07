@@ -26,6 +26,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     public interface OnActionClickListener {
         void onEdit(Transaction transaction);
+
         void onDelete(Transaction transaction);
     }
 
@@ -61,9 +62,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.tvDate.setText(sdf.format(new Date(transaction.getDate())));
 
         if ("INCOME".equals(transaction.getType())) {
-            holder.tvAmount.setTextColor(Color.GREEN);
+            holder.tvAmount.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.color_income));
         } else {
-            holder.tvAmount.setTextColor(Color.RED);
+            holder.tvAmount.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.color_expense));
         }
     }
 

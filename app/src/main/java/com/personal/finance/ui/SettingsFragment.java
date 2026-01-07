@@ -73,8 +73,30 @@ public class SettingsFragment extends Fragment {
         String[] periods = getResources().getStringArray(R.array.periods_array);
         // Use a standard ArrayAdapter but ensure we don't filter out items based on
         // selection
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line,
-                periods);
+        // Use a standard ArrayAdapter but ensure we don't filter out items based on
+        // selection
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                periods) {
+            @NonNull
+            @Override
+            public android.widget.Filter getFilter() {
+                return new android.widget.Filter() {
+                    @Override
+                    protected FilterResults performFiltering(CharSequence constraint) {
+                        FilterResults results = new FilterResults();
+                        results.values = periods;
+                        results.count = periods.length;
+                        return results;
+                    }
+
+                    @Override
+                    protected void publishResults(CharSequence constraint, FilterResults results) {
+                        notifyDataSetChanged();
+                    }
+                };
+            }
+        };
 
         autoCompletePeriod.setAdapter(adapter);
 
@@ -82,7 +104,7 @@ public class SettingsFragment extends Fragment {
         String currentDefault = sessionManager.getDefaultPeriod();
         autoCompletePeriod.setText(currentDefault, false); // false to prevent filtering
 
-        // Force show all items when clicked, clearing any filter
+        // Force show all items when clicked
         autoCompletePeriod.setOnClickListener(v -> {
             autoCompletePeriod.showDropDown();
         });
@@ -104,7 +126,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showManageCategoriesDialog() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(
+                requireContext(), R.style.CustomAlertDialog);
         View view = getLayoutInflater().inflate(R.layout.dialog_manage_categories, null);
         builder.setView(view);
 
@@ -113,63 +136,57 @@ public class SettingsFragment extends Fragment {
         com.google.android.material.textfield.TextInputEditText etNewCategory = view.findViewById(R.id.etNewCategory);
         android.widget.Button btnAdd = view.findViewById(R.id.btnAddCategory);
 
-        final String[] currentType = { "INCOME" }; // Mutable wrapper
-        final android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_list_item_1, new java.util.ArrayList<>());
-        listView.setAdapter(adapter);
+        final String[] currentType = { "INCOME" };
+        final java.util.List<com.personal.finance.data.model.Category> currentList = new java.util.ArrayList<>();
+        final String email = sessionManager.getUserEmail();
 
-        String email = sessionManager.getUserEmail();
-
-        final java.util.List<com.personal.finance.data.model.Category>[] currentList =
-                new java.util.List[]{ new java.util.ArrayList<>() };
-
-        Runnable refreshList = () -> {
-            new Thread(() -> {
-                java.util.List<com.personal.finance.data.model.Category> categories =
-                        financeViewModel.getCategoriesByType(email, currentType[0]); // List now
-
-                currentList[0].clear();
-                currentList[0].addAll(categories);
-
-                java.util.List<String> names = new java.util.ArrayList<>();
-                for (com.personal.finance.data.model.Category c : categories) {
-                    names.add(c.getName()); // getters
+        final android.widget.ArrayAdapter<com.personal.finance.data.model.Category> adapter = new android.widget.ArrayAdapter<com.personal.finance.data.model.Category>(
+                requireContext(), R.layout.item_category, currentList) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                if (convertView == null) {
+                    convertView = getLayoutInflater().inflate(R.layout.item_category, parent, false);
                 }
+                com.personal.finance.data.model.Category item = getItem(position);
+                android.widget.TextView tvName = convertView.findViewById(R.id.tvCategoryName);
+                android.widget.ImageButton btnEdit = convertView.findViewById(R.id.btnEditCategory);
+                android.widget.ImageButton btnDelete = convertView.findViewById(R.id.btnDeleteCategory);
 
-                requireActivity().runOnUiThread(() -> {
-                    adapter.clear();
-                    adapter.addAll(names);
-                    adapter.notifyDataSetChanged();
-                });
-            }).start();
+                if (item != null) {
+                    tvName.setText(item.getName());
+                    btnEdit.setOnClickListener(
+                            v -> showEditCategoryDialog(item,
+                                    () -> refreshCategoryList(email, currentType[0], currentList, this), currentList));
+                    btnDelete.setOnClickListener(v -> {
+                        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(),
+                                R.style.CustomAlertDialog)
+                                .setTitle("Delete Category?")
+                                .setMessage("Are you sure you want to delete '" + item.getName() + "'?")
+                                .setPositiveButton("Delete", (d, w) -> {
+                                    financeViewModel.deleteCategory(item);
+                                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                                            () -> refreshCategoryList(email, currentType[0], currentList, this), 200);
+                                    android.widget.Toast.makeText(requireContext(), "Category deleted",
+                                            android.widget.Toast.LENGTH_SHORT).show();
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .show();
+                    });
+                }
+                return convertView;
+            }
         };
 
-        listView.setOnItemClickListener((parent, v, position, id) -> {
-            if (position < 0 || position >= currentList[0].size()) return;
+        listView.setAdapter(adapter);
 
-            com.personal.finance.data.model.Category toDelete = currentList[0].get(position);
-            new android.app.AlertDialog.Builder(requireContext())
-                    .setTitle("Delete Category")
-                    .setMessage("Delete " + toDelete.getName() + "?")
-                    .setPositiveButton("Yes", (d, w) -> {
-                        financeViewModel.deleteCategory(toDelete);
-                        new android.os.Handler(android.os.Looper.getMainLooper())
-                                .postDelayed(refreshList, 150);
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
-        });
+        refreshCategoryList(email, currentType[0], currentList, adapter);
 
-
-        // Initial Load
-        refreshList.run();
-
-        // Tab Change Listener
         tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
                 currentType[0] = tab.getPosition() == 0 ? "INCOME" : "EXPENSE";
-                refreshList.run();
+                refreshCategoryList(email, currentType[0], currentList, adapter);
             }
 
             @Override
@@ -181,22 +198,94 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        // Add Button Listener
         btnAdd.setOnClickListener(v -> {
             String name = etNewCategory.getText().toString().trim();
-            if (!name.isEmpty()) {
-                com.personal.finance.data.model.Category newCat = new com.personal.finance.data.model.Category(name,
-                        currentType[0], email);
-
-                financeViewModel.insertCategory(newCat);
-                etNewCategory.setText("");
-                new android.os.Handler(android.os.Looper.getMainLooper())
-                        .postDelayed(refreshList, 150);
-
+            if (name.isEmpty()) {
+                android.widget.Toast
+                        .makeText(requireContext(), "Please enter a category name", android.widget.Toast.LENGTH_SHORT)
+                        .show();
+                return;
             }
+
+            for (com.personal.finance.data.model.Category c : currentList) {
+                if (c.getName().equalsIgnoreCase(name)) {
+                    android.widget.Toast.makeText(requireContext(), "This category already exists!",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            com.personal.finance.data.model.Category newCat = new com.personal.finance.data.model.Category(name,
+                    currentType[0], email);
+            financeViewModel.insertCategory(newCat);
+            etNewCategory.setText("");
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                    () -> refreshCategoryList(email, currentType[0], currentList, adapter), 200);
+            android.widget.Toast
+                    .makeText(requireContext(), "Category added successfully", android.widget.Toast.LENGTH_SHORT)
+                    .show();
         });
 
         builder.setPositiveButton("Close", null);
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+        dialog.show();
+    }
+
+    private void showEditCategoryDialog(com.personal.finance.data.model.Category category, Runnable onComplete,
+            java.util.List<com.personal.finance.data.model.Category> categories) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(
+                requireContext(), R.style.CustomAlertDialog);
+        builder.setTitle("Edit Category");
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_category, null);
+        com.google.android.material.textfield.TextInputEditText input = dialogView
+                .findViewById(R.id.etEditCategoryName);
+        input.setText(category.getName());
+        builder.setView(dialogView);
+
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String newName = input.getText().toString().trim();
+            if (newName.isEmpty()) {
+                android.widget.Toast
+                        .makeText(requireContext(), "Category name cannot be empty", android.widget.Toast.LENGTH_SHORT)
+                        .show();
+                return;
+            }
+            if (newName.equalsIgnoreCase(category.getName()))
+                return;
+
+            for (com.personal.finance.data.model.Category c : categories) {
+                if (c.getName().equalsIgnoreCase(newName)) {
+                    android.widget.Toast.makeText(requireContext(), "This category name already exists!",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            financeViewModel.updateCategory(category, newName);
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(onComplete, 200);
+            android.widget.Toast.makeText(requireContext(), "Category updated", android.widget.Toast.LENGTH_SHORT)
+                    .show();
+        });
+        builder.setNegativeButton("Cancel", null);
         builder.show();
+    }
+
+    private void refreshCategoryList(String email, String type,
+            java.util.List<com.personal.finance.data.model.Category> currentList,
+            android.widget.ArrayAdapter<?> adapter) {
+        new Thread(() -> {
+            java.util.List<com.personal.finance.data.model.Category> categories = financeViewModel
+                    .getCategoriesByType(email, type);
+
+            requireActivity().runOnUiThread(() -> {
+                currentList.clear();
+                currentList.addAll(categories);
+                adapter.notifyDataSetChanged();
+            });
+        }).start();
     }
 }

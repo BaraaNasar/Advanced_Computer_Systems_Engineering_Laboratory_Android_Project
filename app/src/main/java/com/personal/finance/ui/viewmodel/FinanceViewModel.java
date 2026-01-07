@@ -11,6 +11,7 @@ import com.personal.finance.data.model.CategorySum;
 import com.personal.finance.data.model.Transaction;
 import com.personal.finance.data.repository.FinanceRepository;
 
+import com.personal.finance.data.model.User;
 import java.util.List;
 
 public class FinanceViewModel extends AndroidViewModel {
@@ -81,6 +82,10 @@ public class FinanceViewModel extends AndroidViewModel {
         repository.deleteCategory(category);
     }
 
+    public void updateCategory(Category oldCategory, String newName) {
+        repository.updateCategory(oldCategory, newName);
+    }
+
     public List<Category> getAllCategories(String email) {
         return repository.getAllCategories(email);
     }
@@ -108,5 +113,26 @@ public class FinanceViewModel extends AndroidViewModel {
 
     public void updateBudget(Budget budget) {
         repository.updateBudget(budget);
+    }
+
+    public double getSpentAmountForCategory(String email, String category) {
+        List<Transaction> allTransactions = repository.getAllTransactions(email);
+        double totalSpent = 0.0;
+        for (Transaction transaction : allTransactions) {
+            if ("EXPENSE".equalsIgnoreCase(transaction.getType()) &&
+                    category.equalsIgnoreCase(transaction.getCategory())) {
+                totalSpent += transaction.getAmount();
+            }
+        }
+        return totalSpent;
+    }
+
+    // -------- User --------
+    public User getUser(String email) {
+        return repository.getUser(email);
+    }
+
+    public void updateUser(User user) {
+        repository.updateUser(user);
     }
 }

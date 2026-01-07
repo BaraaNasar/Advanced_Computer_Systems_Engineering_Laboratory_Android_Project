@@ -4,6 +4,8 @@ package com.personal.finance.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,16 +22,38 @@ public final class ItemBudgetBinding implements ViewBinding {
   private final MaterialCardView rootView;
 
   @NonNull
+  public final ImageView ivBudgetAlert;
+
+  @NonNull
+  public final ProgressBar progressBudget;
+
+  @NonNull
   public final TextView tvBudgetCategory;
 
   @NonNull
   public final TextView tvBudgetLimit;
 
-  private ItemBudgetBinding(@NonNull MaterialCardView rootView, @NonNull TextView tvBudgetCategory,
-      @NonNull TextView tvBudgetLimit) {
+  @NonNull
+  public final TextView tvBudgetPercentage;
+
+  @NonNull
+  public final TextView tvBudgetRemaining;
+
+  @NonNull
+  public final TextView tvBudgetSpent;
+
+  private ItemBudgetBinding(@NonNull MaterialCardView rootView, @NonNull ImageView ivBudgetAlert,
+      @NonNull ProgressBar progressBudget, @NonNull TextView tvBudgetCategory,
+      @NonNull TextView tvBudgetLimit, @NonNull TextView tvBudgetPercentage,
+      @NonNull TextView tvBudgetRemaining, @NonNull TextView tvBudgetSpent) {
     this.rootView = rootView;
+    this.ivBudgetAlert = ivBudgetAlert;
+    this.progressBudget = progressBudget;
     this.tvBudgetCategory = tvBudgetCategory;
     this.tvBudgetLimit = tvBudgetLimit;
+    this.tvBudgetPercentage = tvBudgetPercentage;
+    this.tvBudgetRemaining = tvBudgetRemaining;
+    this.tvBudgetSpent = tvBudgetSpent;
   }
 
   @Override
@@ -59,6 +83,18 @@ public final class ItemBudgetBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.ivBudgetAlert;
+      ImageView ivBudgetAlert = ViewBindings.findChildViewById(rootView, id);
+      if (ivBudgetAlert == null) {
+        break missingId;
+      }
+
+      id = R.id.progressBudget;
+      ProgressBar progressBudget = ViewBindings.findChildViewById(rootView, id);
+      if (progressBudget == null) {
+        break missingId;
+      }
+
       id = R.id.tvBudgetCategory;
       TextView tvBudgetCategory = ViewBindings.findChildViewById(rootView, id);
       if (tvBudgetCategory == null) {
@@ -71,7 +107,26 @@ public final class ItemBudgetBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemBudgetBinding((MaterialCardView) rootView, tvBudgetCategory, tvBudgetLimit);
+      id = R.id.tvBudgetPercentage;
+      TextView tvBudgetPercentage = ViewBindings.findChildViewById(rootView, id);
+      if (tvBudgetPercentage == null) {
+        break missingId;
+      }
+
+      id = R.id.tvBudgetRemaining;
+      TextView tvBudgetRemaining = ViewBindings.findChildViewById(rootView, id);
+      if (tvBudgetRemaining == null) {
+        break missingId;
+      }
+
+      id = R.id.tvBudgetSpent;
+      TextView tvBudgetSpent = ViewBindings.findChildViewById(rootView, id);
+      if (tvBudgetSpent == null) {
+        break missingId;
+      }
+
+      return new ItemBudgetBinding((MaterialCardView) rootView, ivBudgetAlert, progressBudget,
+          tvBudgetCategory, tvBudgetLimit, tvBudgetPercentage, tvBudgetRemaining, tvBudgetSpent);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

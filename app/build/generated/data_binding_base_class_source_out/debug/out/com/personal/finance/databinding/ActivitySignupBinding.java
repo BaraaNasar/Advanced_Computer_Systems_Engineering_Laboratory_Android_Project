@@ -4,10 +4,10 @@ package com.personal.finance.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
@@ -20,7 +20,7 @@ import java.lang.String;
 
 public final class ActivitySignupBinding implements ViewBinding {
   @NonNull
-  private final ScrollView rootView;
+  private final ConstraintLayout rootView;
 
   @NonNull
   public final MaterialButton btnSignUp;
@@ -58,16 +58,13 @@ public final class ActivitySignupBinding implements ViewBinding {
   @NonNull
   public final TextView tvCreateAccount;
 
-  @NonNull
-  public final TextView tvSubtitle;
-
-  private ActivitySignupBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnSignUp,
-      @NonNull TextInputEditText etConfirmPassword, @NonNull TextInputEditText etEmailSignUp,
-      @NonNull TextInputEditText etFirstName, @NonNull TextInputEditText etLastName,
-      @NonNull TextInputEditText etPasswordSignUp, @NonNull TextInputLayout tilConfirmPassword,
-      @NonNull TextInputLayout tilEmailSignUp, @NonNull TextInputLayout tilFirstName,
-      @NonNull TextInputLayout tilLastName, @NonNull TextInputLayout tilPasswordSignUp,
-      @NonNull TextView tvCreateAccount, @NonNull TextView tvSubtitle) {
+  private ActivitySignupBinding(@NonNull ConstraintLayout rootView,
+      @NonNull MaterialButton btnSignUp, @NonNull TextInputEditText etConfirmPassword,
+      @NonNull TextInputEditText etEmailSignUp, @NonNull TextInputEditText etFirstName,
+      @NonNull TextInputEditText etLastName, @NonNull TextInputEditText etPasswordSignUp,
+      @NonNull TextInputLayout tilConfirmPassword, @NonNull TextInputLayout tilEmailSignUp,
+      @NonNull TextInputLayout tilFirstName, @NonNull TextInputLayout tilLastName,
+      @NonNull TextInputLayout tilPasswordSignUp, @NonNull TextView tvCreateAccount) {
     this.rootView = rootView;
     this.btnSignUp = btnSignUp;
     this.etConfirmPassword = etConfirmPassword;
@@ -81,12 +78,11 @@ public final class ActivitySignupBinding implements ViewBinding {
     this.tilLastName = tilLastName;
     this.tilPasswordSignUp = tilPasswordSignUp;
     this.tvCreateAccount = tvCreateAccount;
-    this.tvSubtitle = tvSubtitle;
   }
 
   @Override
   @NonNull
-  public ScrollView getRoot() {
+  public ConstraintLayout getRoot() {
     return rootView;
   }
 
@@ -183,16 +179,9 @@ public final class ActivitySignupBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tvSubtitle;
-      TextView tvSubtitle = ViewBindings.findChildViewById(rootView, id);
-      if (tvSubtitle == null) {
-        break missingId;
-      }
-
-      return new ActivitySignupBinding((ScrollView) rootView, btnSignUp, etConfirmPassword,
+      return new ActivitySignupBinding((ConstraintLayout) rootView, btnSignUp, etConfirmPassword,
           etEmailSignUp, etFirstName, etLastName, etPasswordSignUp, tilConfirmPassword,
-          tilEmailSignUp, tilFirstName, tilLastName, tilPasswordSignUp, tvCreateAccount,
-          tvSubtitle);
+          tilEmailSignUp, tilFirstName, tilLastName, tilPasswordSignUp, tvCreateAccount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

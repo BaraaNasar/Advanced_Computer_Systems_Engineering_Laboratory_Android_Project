@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.card.MaterialCardView;
@@ -20,7 +20,7 @@ import java.lang.String;
 
 public final class FragmentSettingsBinding implements ViewBinding {
   @NonNull
-  private final NestedScrollView rootView;
+  private final ConstraintLayout rootView;
 
   @NonNull
   public final AutoCompleteTextView autoCompletePeriod;
@@ -35,27 +35,32 @@ public final class FragmentSettingsBinding implements ViewBinding {
   public final MaterialCardView cardTheme;
 
   @NonNull
+  public final ConstraintLayout headerSettings;
+
+  @NonNull
   public final TextInputLayout layoutDefaultPeriod;
 
   @NonNull
   public final SwitchMaterial switchTheme;
 
-  private FragmentSettingsBinding(@NonNull NestedScrollView rootView,
+  private FragmentSettingsBinding(@NonNull ConstraintLayout rootView,
       @NonNull AutoCompleteTextView autoCompletePeriod, @NonNull MaterialCardView cardCategories,
       @NonNull MaterialCardView cardPeriod, @NonNull MaterialCardView cardTheme,
-      @NonNull TextInputLayout layoutDefaultPeriod, @NonNull SwitchMaterial switchTheme) {
+      @NonNull ConstraintLayout headerSettings, @NonNull TextInputLayout layoutDefaultPeriod,
+      @NonNull SwitchMaterial switchTheme) {
     this.rootView = rootView;
     this.autoCompletePeriod = autoCompletePeriod;
     this.cardCategories = cardCategories;
     this.cardPeriod = cardPeriod;
     this.cardTheme = cardTheme;
+    this.headerSettings = headerSettings;
     this.layoutDefaultPeriod = layoutDefaultPeriod;
     this.switchTheme = switchTheme;
   }
 
   @Override
   @NonNull
-  public NestedScrollView getRoot() {
+  public ConstraintLayout getRoot() {
     return rootView;
   }
 
@@ -104,6 +109,12 @@ public final class FragmentSettingsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.headerSettings;
+      ConstraintLayout headerSettings = ViewBindings.findChildViewById(rootView, id);
+      if (headerSettings == null) {
+        break missingId;
+      }
+
       id = R.id.layoutDefaultPeriod;
       TextInputLayout layoutDefaultPeriod = ViewBindings.findChildViewById(rootView, id);
       if (layoutDefaultPeriod == null) {
@@ -116,8 +127,8 @@ public final class FragmentSettingsBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentSettingsBinding((NestedScrollView) rootView, autoCompletePeriod,
-          cardCategories, cardPeriod, cardTheme, layoutDefaultPeriod, switchTheme);
+      return new FragmentSettingsBinding((ConstraintLayout) rootView, autoCompletePeriod,
+          cardCategories, cardPeriod, cardTheme, headerSettings, layoutDefaultPeriod, switchTheme);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

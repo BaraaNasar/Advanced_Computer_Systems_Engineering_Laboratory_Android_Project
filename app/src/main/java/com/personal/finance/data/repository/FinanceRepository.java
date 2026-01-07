@@ -9,6 +9,8 @@ import com.personal.finance.data.model.Transaction;
 import com.personal.finance.data.sqlite.BudgetDb;
 import com.personal.finance.data.sqlite.CategoryDb;
 import com.personal.finance.data.sqlite.TransactionDb;
+import com.personal.finance.data.sqlite.UserDb;
+import com.personal.finance.data.model.User;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +21,7 @@ public class FinanceRepository {
     private final TransactionDb transactionDb;
     private final BudgetDb budgetDb;
     private final CategoryDb categoryDb;
+    private final UserDb userDb;
 
     // keep background executor (replacement for Room executor)
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -27,6 +30,7 @@ public class FinanceRepository {
         transactionDb = new TransactionDb(application);
         budgetDb = new BudgetDb(application);
         categoryDb = new CategoryDb(application);
+        userDb = new UserDb(application);
     }
 
     // ---------------- Transactions (read) ----------------
@@ -75,7 +79,7 @@ public class FinanceRepository {
         executor.execute(() -> transactionDb.update(transaction));
     }
 
-    //get all transactions as List
+    // get all transactions as List
     public List<Transaction> getAllTransactionsList(String email) {
         return transactionDb.getAllTransactions(email);
     }
@@ -94,8 +98,11 @@ public class FinanceRepository {
     }
 
     public void deleteCategory(Category category) {
-        // if your UI has id use deleteById(category.getId())
         executor.execute(() -> categoryDb.delete(category));
+    }
+
+    public void updateCategory(Category oldCategory, String newName) {
+        executor.execute(() -> categoryDb.update(oldCategory, newName));
     }
 
     // ---------------- Budgets ----------------
@@ -136,5 +143,14 @@ public class FinanceRepository {
                 categoryDb.insert(new Category("Shopping", "EXPENSE", email));
             }
         });
+    }
+
+    // ---------------- User ----------------
+    public User getUser(String email) {
+        return userDb.getUser(email);
+    }
+
+    public void updateUser(User user) {
+        executor.execute(() -> userDb.updateUser(user));
     }
 }

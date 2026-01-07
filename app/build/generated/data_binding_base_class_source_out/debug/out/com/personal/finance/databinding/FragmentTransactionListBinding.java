@@ -24,12 +24,17 @@ public final class FragmentTransactionListBinding implements ViewBinding {
   public final FloatingActionButton fabAdd;
 
   @NonNull
+  public final ConstraintLayout headerContainer;
+
+  @NonNull
   public final RecyclerView recyclerView;
 
   private FragmentTransactionListBinding(@NonNull ConstraintLayout rootView,
-      @NonNull FloatingActionButton fabAdd, @NonNull RecyclerView recyclerView) {
+      @NonNull FloatingActionButton fabAdd, @NonNull ConstraintLayout headerContainer,
+      @NonNull RecyclerView recyclerView) {
     this.rootView = rootView;
     this.fabAdd = fabAdd;
+    this.headerContainer = headerContainer;
     this.recyclerView = recyclerView;
   }
 
@@ -66,13 +71,20 @@ public final class FragmentTransactionListBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.headerContainer;
+      ConstraintLayout headerContainer = ViewBindings.findChildViewById(rootView, id);
+      if (headerContainer == null) {
+        break missingId;
+      }
+
       id = R.id.recyclerView;
       RecyclerView recyclerView = ViewBindings.findChildViewById(rootView, id);
       if (recyclerView == null) {
         break missingId;
       }
 
-      return new FragmentTransactionListBinding((ConstraintLayout) rootView, fabAdd, recyclerView);
+      return new FragmentTransactionListBinding((ConstraintLayout) rootView, fabAdd,
+          headerContainer, recyclerView);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

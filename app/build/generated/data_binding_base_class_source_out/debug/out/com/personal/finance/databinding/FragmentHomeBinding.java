@@ -8,10 +8,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.github.mikephil.charting.charts.PieChart;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.card.MaterialCardView;
 import com.personal.finance.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -19,13 +22,28 @@ import java.lang.String;
 
 public final class FragmentHomeBinding implements ViewBinding {
   @NonNull
-  private final NestedScrollView rootView;
+  private final ConstraintLayout rootView;
+
+  @NonNull
+  public final MaterialButton btnToggleExpense;
+
+  @NonNull
+  public final MaterialButton btnToggleIncome;
+
+  @NonNull
+  public final MaterialCardView cardFilter;
+
+  @NonNull
+  public final ConstraintLayout headerContent;
 
   @NonNull
   public final PieChart pieChart;
 
   @NonNull
   public final Spinner spinnerPeriod;
+
+  @NonNull
+  public final MaterialButtonToggleGroup toggleChartType;
 
   @NonNull
   public final TextView tvDateRange;
@@ -39,13 +57,21 @@ public final class FragmentHomeBinding implements ViewBinding {
   @NonNull
   public final TextView tvTotalIncome;
 
-  private FragmentHomeBinding(@NonNull NestedScrollView rootView, @NonNull PieChart pieChart,
-      @NonNull Spinner spinnerPeriod, @NonNull TextView tvDateRange,
+  private FragmentHomeBinding(@NonNull ConstraintLayout rootView,
+      @NonNull MaterialButton btnToggleExpense, @NonNull MaterialButton btnToggleIncome,
+      @NonNull MaterialCardView cardFilter, @NonNull ConstraintLayout headerContent,
+      @NonNull PieChart pieChart, @NonNull Spinner spinnerPeriod,
+      @NonNull MaterialButtonToggleGroup toggleChartType, @NonNull TextView tvDateRange,
       @NonNull TextView tvTotalBalance, @NonNull TextView tvTotalExpense,
       @NonNull TextView tvTotalIncome) {
     this.rootView = rootView;
+    this.btnToggleExpense = btnToggleExpense;
+    this.btnToggleIncome = btnToggleIncome;
+    this.cardFilter = cardFilter;
+    this.headerContent = headerContent;
     this.pieChart = pieChart;
     this.spinnerPeriod = spinnerPeriod;
+    this.toggleChartType = toggleChartType;
     this.tvDateRange = tvDateRange;
     this.tvTotalBalance = tvTotalBalance;
     this.tvTotalExpense = tvTotalExpense;
@@ -54,7 +80,7 @@ public final class FragmentHomeBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public NestedScrollView getRoot() {
+  public ConstraintLayout getRoot() {
     return rootView;
   }
 
@@ -79,6 +105,30 @@ public final class FragmentHomeBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnToggleExpense;
+      MaterialButton btnToggleExpense = ViewBindings.findChildViewById(rootView, id);
+      if (btnToggleExpense == null) {
+        break missingId;
+      }
+
+      id = R.id.btnToggleIncome;
+      MaterialButton btnToggleIncome = ViewBindings.findChildViewById(rootView, id);
+      if (btnToggleIncome == null) {
+        break missingId;
+      }
+
+      id = R.id.cardFilter;
+      MaterialCardView cardFilter = ViewBindings.findChildViewById(rootView, id);
+      if (cardFilter == null) {
+        break missingId;
+      }
+
+      id = R.id.headerContent;
+      ConstraintLayout headerContent = ViewBindings.findChildViewById(rootView, id);
+      if (headerContent == null) {
+        break missingId;
+      }
+
       id = R.id.pieChart;
       PieChart pieChart = ViewBindings.findChildViewById(rootView, id);
       if (pieChart == null) {
@@ -88,6 +138,12 @@ public final class FragmentHomeBinding implements ViewBinding {
       id = R.id.spinnerPeriod;
       Spinner spinnerPeriod = ViewBindings.findChildViewById(rootView, id);
       if (spinnerPeriod == null) {
+        break missingId;
+      }
+
+      id = R.id.toggleChartType;
+      MaterialButtonToggleGroup toggleChartType = ViewBindings.findChildViewById(rootView, id);
+      if (toggleChartType == null) {
         break missingId;
       }
 
@@ -115,8 +171,9 @@ public final class FragmentHomeBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentHomeBinding((NestedScrollView) rootView, pieChart, spinnerPeriod,
-          tvDateRange, tvTotalBalance, tvTotalExpense, tvTotalIncome);
+      return new FragmentHomeBinding((ConstraintLayout) rootView, btnToggleExpense, btnToggleIncome,
+          cardFilter, headerContent, pieChart, spinnerPeriod, toggleChartType, tvDateRange,
+          tvTotalBalance, tvTotalExpense, tvTotalIncome);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

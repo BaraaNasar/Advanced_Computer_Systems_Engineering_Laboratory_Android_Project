@@ -79,4 +79,9 @@
         <item name="android:layout_margin">8dp</item>
         <item name="cardBackgroundColor">?attr/colorSurface</item>
     </style>
+    <!-- Custom AlertDialog Style -->
+    <style name="CustomAlertDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="background">@drawable/bg_dialog_rounded</item>
+    </style>
 </resources>

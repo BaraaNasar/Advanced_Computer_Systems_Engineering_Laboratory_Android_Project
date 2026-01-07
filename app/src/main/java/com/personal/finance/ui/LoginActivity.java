@@ -55,8 +55,10 @@ public class LoginActivity extends AppCompatActivity {
         cbRememberMe = findViewById(R.id.cbRememberMe);
 
         Button btnLogin = findViewById(R.id.btnLogin);
-        findViewById(R.id.btnGoToSignUp).setOnClickListener(v ->
-                startActivity(new Intent(this, SignUpActivity.class)));
+
+        // New alternative sign up button to match the premium design
+        findViewById(R.id.btnSignUpAlternative)
+                .setOnClickListener(v -> startActivity(new Intent(this, SignUpActivity.class)));
 
         btnLogin.setOnClickListener(v -> login());
 
@@ -89,7 +91,8 @@ public class LoginActivity extends AppCompatActivity {
             tilPassword.setError(null);
         }
 
-        if (hasError) return;
+        if (hasError)
+            return;
 
         // SQLite check
         boolean ok = userDb.validateLogin(email, password);
@@ -113,15 +116,33 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setupTextWatchers() {
         etEmail.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { tilEmail.setError(null); }
-            @Override public void afterTextChanged(android.text.Editable s) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilEmail.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
 
         etPassword.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { tilPassword.setError(null); }
-            @Override public void afterTextChanged(android.text.Editable s) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilPassword.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
     }
 

@@ -24,12 +24,17 @@ public final class FragmentBudgetBinding implements ViewBinding {
   public final FloatingActionButton fabAddBudget;
 
   @NonNull
+  public final ConstraintLayout headerBudget;
+
+  @NonNull
   public final RecyclerView rvBudgets;
 
   private FragmentBudgetBinding(@NonNull ConstraintLayout rootView,
-      @NonNull FloatingActionButton fabAddBudget, @NonNull RecyclerView rvBudgets) {
+      @NonNull FloatingActionButton fabAddBudget, @NonNull ConstraintLayout headerBudget,
+      @NonNull RecyclerView rvBudgets) {
     this.rootView = rootView;
     this.fabAddBudget = fabAddBudget;
+    this.headerBudget = headerBudget;
     this.rvBudgets = rvBudgets;
   }
 
@@ -66,13 +71,20 @@ public final class FragmentBudgetBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.headerBudget;
+      ConstraintLayout headerBudget = ViewBindings.findChildViewById(rootView, id);
+      if (headerBudget == null) {
+        break missingId;
+      }
+
       id = R.id.rvBudgets;
       RecyclerView rvBudgets = ViewBindings.findChildViewById(rootView, id);
       if (rvBudgets == null) {
         break missingId;
       }
 
-      return new FragmentBudgetBinding((ConstraintLayout) rootView, fabAddBudget, rvBudgets);
+      return new FragmentBudgetBinding((ConstraintLayout) rootView, fabAddBudget, headerBudget,
+          rvBudgets);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -17,11 +17,11 @@
             android:icon="@android:drawable/ic_menu_recent_history"
             android:title="@string/menu_history" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_expenses"
             android:icon="@android:drawable/ic_delete"
             android:title="@string/menu_expenses" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_budgets"
             android:icon="@android:drawable/ic_menu_my_calendar"
             android:title="@string/menu_budget" />
         <item
@@ -33,8 +33,8 @@
             android:icon="@android:drawable/ic_menu_preferences"
             android:title="@string/menu_settings" />
     </group>
-    
-    <item android:title="Account">
+
+    <item android:title="@string/menu_account">
         <menu>
              <item
                 android:id="@+id/nav_logout"

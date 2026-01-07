@@ -6,6 +6,11 @@
         <item>Day</item>
         <item>Custom</item>
     </string-array>
+    <color name="auth_container_bg">@color/primary_light</color>
+    <color name="auth_header_bg">@color/primary</color>
+    <color name="auth_input_bg">#E8F5E9</color>
+    <color name="auth_input_text">@color/primary_dark</color>
+    <color name="auth_label_text">@color/primary_dark</color>
     <color name="background_light">#F8FAFC</color>
     <color name="black">#000000</color>
     <color name="color_expense">#FF5252</color>
@@ -13,6 +18,7 @@
     <color name="expense_red">@color/color_expense</color>
     <color name="income_green">@color/color_income</color>
     <color name="main_background">@color/background_light</color>
+    <color name="nav_item_selected">@color/primary_dark</color>
     <color name="primary">#48C67D</color>
     <color name="primary_dark">#133A2D</color>
     <color name="primary_light">#D1FAE5</color>
@@ -45,6 +51,7 @@
     <string name="label_date">Date</string>
     <string name="label_description">Description</string>
     <string name="last_name">Last Name</string>
+    <string name="menu_account">Account</string>
     <string name="menu_budget">Budgets &amp; Goals</string>
     <string name="menu_expenses">Expenses</string>
     <string name="menu_history">History</string>
@@ -64,6 +71,10 @@
     <string name="theme_light">Light Theme</string>
     <string name="total_balance">Total Balance</string>
     <string name="welcome_message">Welcome Back!</string>
+    <style name="CustomAlertDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="background">@drawable/bg_dialog_rounded</item>
+    </style>
     <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>

@@ -4,13 +4,14 @@ package com.personal.finance.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.personal.finance.R;
 import java.lang.NullPointerException;
@@ -22,13 +23,16 @@ public final class ItemTransactionBinding implements ViewBinding {
   private final MaterialCardView rootView;
 
   @NonNull
-  public final Button deleteButton;
+  public final MaterialButton deleteButton;
 
   @NonNull
-  public final Button editButton;
+  public final MaterialButton editButton;
 
   @NonNull
   public final ImageView ivIcon;
+
+  @NonNull
+  public final LinearLayout llActions;
 
   @NonNull
   public final TextView tvAmount;
@@ -42,13 +46,15 @@ public final class ItemTransactionBinding implements ViewBinding {
   @NonNull
   public final TextView tvDescription;
 
-  private ItemTransactionBinding(@NonNull MaterialCardView rootView, @NonNull Button deleteButton,
-      @NonNull Button editButton, @NonNull ImageView ivIcon, @NonNull TextView tvAmount,
+  private ItemTransactionBinding(@NonNull MaterialCardView rootView,
+      @NonNull MaterialButton deleteButton, @NonNull MaterialButton editButton,
+      @NonNull ImageView ivIcon, @NonNull LinearLayout llActions, @NonNull TextView tvAmount,
       @NonNull TextView tvCategory, @NonNull TextView tvDate, @NonNull TextView tvDescription) {
     this.rootView = rootView;
     this.deleteButton = deleteButton;
     this.editButton = editButton;
     this.ivIcon = ivIcon;
+    this.llActions = llActions;
     this.tvAmount = tvAmount;
     this.tvCategory = tvCategory;
     this.tvDate = tvDate;
@@ -83,13 +89,13 @@ public final class ItemTransactionBinding implements ViewBinding {
     int id;
     missingId: {
       id = R.id.deleteButton;
-      Button deleteButton = ViewBindings.findChildViewById(rootView, id);
+      MaterialButton deleteButton = ViewBindings.findChildViewById(rootView, id);
       if (deleteButton == null) {
         break missingId;
       }
 
       id = R.id.editButton;
-      Button editButton = ViewBindings.findChildViewById(rootView, id);
+      MaterialButton editButton = ViewBindings.findChildViewById(rootView, id);
       if (editButton == null) {
         break missingId;
       }
@@ -97,6 +103,12 @@ public final class ItemTransactionBinding implements ViewBinding {
       id = R.id.ivIcon;
       ImageView ivIcon = ViewBindings.findChildViewById(rootView, id);
       if (ivIcon == null) {
+        break missingId;
+      }
+
+      id = R.id.llActions;
+      LinearLayout llActions = ViewBindings.findChildViewById(rootView, id);
+      if (llActions == null) {
         break missingId;
       }
 
@@ -125,7 +137,7 @@ public final class ItemTransactionBinding implements ViewBinding {
       }
 
       return new ItemTransactionBinding((MaterialCardView) rootView, deleteButton, editButton,
-          ivIcon, tvAmount, tvCategory, tvDate, tvDescription);
+          ivIcon, llActions, tvAmount, tvCategory, tvDate, tvDescription);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

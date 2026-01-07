@@ -4,13 +4,14 @@ package com.personal.finance.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.personal.finance.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -18,37 +19,56 @@ import java.lang.String;
 
 public final class FragmentProfileBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
+  private final ConstraintLayout rootView;
 
   @NonNull
-  public final Button btnLogoutProfile;
+  public final MaterialButton btnLogoutProfile;
 
   @NonNull
-  public final Button btnSaveProfile;
+  public final MaterialButton btnSaveProfile;
 
   @NonNull
-  public final EditText etProfileFirstName;
+  public final TextInputEditText etProfileFirstName;
 
   @NonNull
-  public final EditText etProfileLastName;
+  public final TextInputEditText etProfileLastName;
 
   @NonNull
-  public final EditText etProfilePassword;
+  public final TextInputEditText etProfilePassword;
 
-  private FragmentProfileBinding(@NonNull LinearLayout rootView, @NonNull Button btnLogoutProfile,
-      @NonNull Button btnSaveProfile, @NonNull EditText etProfileFirstName,
-      @NonNull EditText etProfileLastName, @NonNull EditText etProfilePassword) {
+  @NonNull
+  public final ConstraintLayout headerProfile;
+
+  @NonNull
+  public final TextInputLayout tilProfileFirstName;
+
+  @NonNull
+  public final TextInputLayout tilProfileLastName;
+
+  @NonNull
+  public final TextInputLayout tilProfilePassword;
+
+  private FragmentProfileBinding(@NonNull ConstraintLayout rootView,
+      @NonNull MaterialButton btnLogoutProfile, @NonNull MaterialButton btnSaveProfile,
+      @NonNull TextInputEditText etProfileFirstName, @NonNull TextInputEditText etProfileLastName,
+      @NonNull TextInputEditText etProfilePassword, @NonNull ConstraintLayout headerProfile,
+      @NonNull TextInputLayout tilProfileFirstName, @NonNull TextInputLayout tilProfileLastName,
+      @NonNull TextInputLayout tilProfilePassword) {
     this.rootView = rootView;
     this.btnLogoutProfile = btnLogoutProfile;
     this.btnSaveProfile = btnSaveProfile;
     this.etProfileFirstName = etProfileFirstName;
     this.etProfileLastName = etProfileLastName;
     this.etProfilePassword = etProfilePassword;
+    this.headerProfile = headerProfile;
+    this.tilProfileFirstName = tilProfileFirstName;
+    this.tilProfileLastName = tilProfileLastName;
+    this.tilProfilePassword = tilProfilePassword;
   }
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public ConstraintLayout getRoot() {
     return rootView;
   }
 
@@ -74,37 +94,62 @@ public final class FragmentProfileBinding implements ViewBinding {
     int id;
     missingId: {
       id = R.id.btnLogoutProfile;
-      Button btnLogoutProfile = ViewBindings.findChildViewById(rootView, id);
+      MaterialButton btnLogoutProfile = ViewBindings.findChildViewById(rootView, id);
       if (btnLogoutProfile == null) {
         break missingId;
       }
 
       id = R.id.btnSaveProfile;
-      Button btnSaveProfile = ViewBindings.findChildViewById(rootView, id);
+      MaterialButton btnSaveProfile = ViewBindings.findChildViewById(rootView, id);
       if (btnSaveProfile == null) {
         break missingId;
       }
 
       id = R.id.etProfileFirstName;
-      EditText etProfileFirstName = ViewBindings.findChildViewById(rootView, id);
+      TextInputEditText etProfileFirstName = ViewBindings.findChildViewById(rootView, id);
       if (etProfileFirstName == null) {
         break missingId;
       }
 
       id = R.id.etProfileLastName;
-      EditText etProfileLastName = ViewBindings.findChildViewById(rootView, id);
+      TextInputEditText etProfileLastName = ViewBindings.findChildViewById(rootView, id);
       if (etProfileLastName == null) {
         break missingId;
       }
 
       id = R.id.etProfilePassword;
-      EditText etProfilePassword = ViewBindings.findChildViewById(rootView, id);
+      TextInputEditText etProfilePassword = ViewBindings.findChildViewById(rootView, id);
       if (etProfilePassword == null) {
         break missingId;
       }
 
-      return new FragmentProfileBinding((LinearLayout) rootView, btnLogoutProfile, btnSaveProfile,
-          etProfileFirstName, etProfileLastName, etProfilePassword);
+      id = R.id.headerProfile;
+      ConstraintLayout headerProfile = ViewBindings.findChildViewById(rootView, id);
+      if (headerProfile == null) {
+        break missingId;
+      }
+
+      id = R.id.tilProfileFirstName;
+      TextInputLayout tilProfileFirstName = ViewBindings.findChildViewById(rootView, id);
+      if (tilProfileFirstName == null) {
+        break missingId;
+      }
+
+      id = R.id.tilProfileLastName;
+      TextInputLayout tilProfileLastName = ViewBindings.findChildViewById(rootView, id);
+      if (tilProfileLastName == null) {
+        break missingId;
+      }
+
+      id = R.id.tilProfilePassword;
+      TextInputLayout tilProfilePassword = ViewBindings.findChildViewById(rootView, id);
+      if (tilProfilePassword == null) {
+        break missingId;
+      }
+
+      return new FragmentProfileBinding((ConstraintLayout) rootView, btnLogoutProfile,
+          btnSaveProfile, etProfileFirstName, etProfileLastName, etProfilePassword, headerProfile,
+          tilProfileFirstName, tilProfileLastName, tilProfilePassword);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

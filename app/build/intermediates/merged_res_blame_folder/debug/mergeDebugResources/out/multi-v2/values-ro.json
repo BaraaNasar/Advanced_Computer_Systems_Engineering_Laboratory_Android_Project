@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.personal.finance.app-mergeDebugResources-45:/values-ro/values-ro.xml",
+            "outputFile": "com.personal.finance.app-mergeDebugResources-42:/values-ro/values-ro.xml",
             "map": [
                 {
                     "source": "C:\\Users\\USER\\.gradle\\caches\\transforms-3\\168fd16f696aed070989d54693531e3f\\transformed\\core-1.9.0\\res\\values-ro\\values-ro.xml",

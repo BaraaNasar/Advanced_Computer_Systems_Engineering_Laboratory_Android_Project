@@ -64,11 +64,12 @@ public class HomeFragment extends Fragment {
 
         toggleChartType = view.findViewById(R.id.toggleChartType);
 
-// default selected = Expense
+        // default selected = Expense
         toggleChartType.check(R.id.btnToggleExpense);
 
         toggleChartType.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (!isChecked) return;
+            if (!isChecked)
+                return;
 
             if (checkedId == R.id.btnToggleIncome) {
                 chartType = "INCOME";
@@ -141,6 +142,30 @@ public class HomeFragment extends Fragment {
         return c.getTimeInMillis();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Check if default period changed while we were away (e.g. in Settings)
+        if (sessionManager != null) {
+            String defaultPeriod = sessionManager.getDefaultPeriod();
+            // If current period is different from default, but the user hasn't explicitly
+            // changed it
+            // (or to simply enforce default on resume per requirement), we can update it.
+            // Best logic: If the stored default period is different from what we are
+            // showing, update it.
+            if (defaultPeriod != null && !defaultPeriod.equals(currentPeriod)) {
+                // Find index and select
+                String[] periods = getResources().getStringArray(R.array.periods_array);
+                for (int i = 0; i < periods.length; i++) {
+                    if (periods[i].equals(defaultPeriod)) {
+                        spinnerPeriod.setSelection(i);
+                        break;
+                    }
+                }
+                // Update logic will be handled by OnItemSelectedListener
+            }
+        }
+    }
 
     private void setupSpinner() {
         android.widget.ArrayAdapter<CharSequence> adapter = android.widget.ArrayAdapter.createFromResource(
@@ -206,13 +231,14 @@ public class HomeFragment extends Fragment {
         tvDateRange
                 .setText(sdf.format(new java.util.Date(startDate)) + " - " + sdf.format(new java.util.Date(endDate)));
     }
+
     private void showDatePicker() {
         java.util.Calendar now = java.util.Calendar.getInstance();
         final long maxDate = endOfDay(System.currentTimeMillis()); // آخر لحظة باليوم الحالي
 
         // Pick START
-        android.app.DatePickerDialog startDialog =
-                new android.app.DatePickerDialog(requireContext(), (v1, y1, m1, d1) -> {
+        android.app.DatePickerDialog startDialog = new android.app.DatePickerDialog(requireContext(),
+                (v1, y1, m1, d1) -> {
 
                     java.util.Calendar startCal = java.util.Calendar.getInstance();
                     startCal.set(y1, m1, d1, 0, 0, 0);
@@ -221,8 +247,8 @@ public class HomeFragment extends Fragment {
 
                     // Pick END
                     java.util.Calendar now2 = java.util.Calendar.getInstance();
-                    android.app.DatePickerDialog endDialog =
-                            new android.app.DatePickerDialog(requireContext(), (v2, y2, m2, d2) -> {
+                    android.app.DatePickerDialog endDialog = new android.app.DatePickerDialog(requireContext(),
+                            (v2, y2, m2, d2) -> {
 
                                 java.util.Calendar endCal = java.util.Calendar.getInstance();
                                 endCal.set(y2, m2, d2, 23, 59, 59);
@@ -249,13 +275,13 @@ public class HomeFragment extends Fragment {
                                 loadData();
 
                             }, now2.get(java.util.Calendar.YEAR), now2.get(java.util.Calendar.MONTH),
-                                    now2.get(java.util.Calendar.DAY_OF_MONTH));
+                            now2.get(java.util.Calendar.DAY_OF_MONTH));
 
                     endDialog.getDatePicker().setMaxDate(maxDate);
                     endDialog.show();
 
                 }, now.get(java.util.Calendar.YEAR), now.get(java.util.Calendar.MONTH),
-                        now.get(java.util.Calendar.DAY_OF_MONTH));
+                now.get(java.util.Calendar.DAY_OF_MONTH));
 
         startDialog.getDatePicker().setMaxDate(maxDate);
         startDialog.show();
@@ -263,7 +289,8 @@ public class HomeFragment extends Fragment {
 
     private void loadData() {
         String email = sessionManager.getUserEmail();
-        if (email == null) return;
+        if (email == null)
+            return;
 
         TransactionDb txDb = new TransactionDb(requireContext());
 
@@ -280,7 +307,6 @@ public class HomeFragment extends Fragment {
             });
         }).start();
     }
-
 
     private void updateBalanceUI() {
         tvIncome.setText(String.format(Locale.getDefault(), "$%.2f", totalIncome));

@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private EditText etFirstName, etLastName, etEmail, etPassword, etConfirmPassword;
-    private TextInputLayout tilFirst, tilLast, tilEmail, tilPass, tilConfirm;
+    private EditText etFirstName, etLastName, etEmailSignUp, etPasswordSignUp, etConfirmPassword;
+    private TextInputLayout tilFirstName, tilLastName, tilEmailSignUp, tilPasswordSignUp, tilConfirmPassword;
 
     private UserDb userDb;
 
@@ -41,15 +41,15 @@ public class SignUpActivity extends AppCompatActivity {
 
         etFirstName = findViewById(R.id.etFirstName);
         etLastName = findViewById(R.id.etLastName);
-        etEmail = findViewById(R.id.etEmailSignUp);
-        etPassword = findViewById(R.id.etPasswordSignUp);
+        etEmailSignUp = findViewById(R.id.etEmailSignUp);
+        etPasswordSignUp = findViewById(R.id.etPasswordSignUp);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
 
-        tilFirst = findViewById(R.id.tilFirstName);
-        tilLast = findViewById(R.id.tilLastName);
-        tilEmail = findViewById(R.id.tilEmailSignUp);
-        tilPass = findViewById(R.id.tilPasswordSignUp);
-        tilConfirm = findViewById(R.id.tilConfirmPassword);
+        tilFirstName = findViewById(R.id.tilFirstName);
+        tilLastName = findViewById(R.id.tilLastName);
+        tilEmailSignUp = findViewById(R.id.tilEmailSignUp);
+        tilPasswordSignUp = findViewById(R.id.tilPasswordSignUp);
+        tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
 
         Button btnSignUp = findViewById(R.id.btnSignUp);
         btnSignUp.setOnClickListener(v -> register());
@@ -60,8 +60,8 @@ public class SignUpActivity extends AppCompatActivity {
     private void register() {
         String firstName = etFirstName.getText().toString().trim();
         String lastName = etLastName.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        String email = etEmailSignUp.getText().toString().trim();
+        String password = etPasswordSignUp.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
         clearErrors();
@@ -71,7 +71,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         if (userDb.userExists(email)) {
-            tilEmail.setError("Email already registered");
+            tilEmailSignUp.setError("Email already registered");
             return;
         }
 
@@ -85,53 +85,53 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void clearErrors() {
-        tilFirst.setError(null);
-        tilLast.setError(null);
-        tilEmail.setError(null);
-        tilPass.setError(null);
-        tilConfirm.setError(null);
+        tilFirstName.setError(null);
+        tilLastName.setError(null);
+        tilEmailSignUp.setError(null);
+        tilPasswordSignUp.setError(null);
+        tilConfirmPassword.setError(null);
     }
 
     private boolean validateInput(String first, String last, String email, String pass, String confirm) {
         boolean isValid = true;
 
         if (TextUtils.isEmpty(first)) {
-            tilFirst.setError("First name is required");
+            tilFirstName.setError("First name is required");
             isValid = false;
         } else if (first.length() < 3 || first.length() > 10) {
-            tilFirst.setError("Must be 3-10 characters");
+            tilFirstName.setError("Must be 3-10 characters");
             isValid = false;
         }
 
         if (TextUtils.isEmpty(last)) {
-            tilLast.setError("Last name is required");
+            tilLastName.setError("Last name is required");
             isValid = false;
         } else if (last.length() < 3 || last.length() > 10) {
-            tilLast.setError("Required (3-10 characters)");
+            tilLastName.setError("Required (3-10 characters)");
             isValid = false;
         }
 
         if (TextUtils.isEmpty(email)) {
-            tilEmail.setError("Email is required");
+            tilEmailSignUp.setError("Email is required");
             isValid = false;
         } else if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError("Invalid Email format");
+            tilEmailSignUp.setError("Invalid Email format");
             isValid = false;
         }
 
         if (TextUtils.isEmpty(pass)) {
-            tilPass.setError("Password is required");
+            tilPasswordSignUp.setError("Password is required");
             isValid = false;
         } else if (!isValidPassword(pass)) {
-            tilPass.setError("6-12 chars, 1 digit, 1 lower, 1 upper");
+            tilPasswordSignUp.setError("6-12 chars, 1 digit, 1 lower, 1 upper");
             isValid = false;
         }
 
         if (TextUtils.isEmpty(confirm)) {
-            tilConfirm.setError("Confirmation required");
+            tilConfirmPassword.setError("Confirmation required");
             isValid = false;
         } else if (!pass.equals(confirm)) {
-            tilConfirm.setError("Password do not match");
+            tilConfirmPassword.setError("Password do not match");
             isValid = false;
         }
 
@@ -140,69 +140,108 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void setupTextWatchers() {
         etFirstName.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0 && (s.length() < 3 || s.length() > 10)) {
-                    tilFirst.setError("Must be 3-10 characters");
+                    tilFirstName.setError("Must be 3-10 characters");
                 } else {
-                    tilFirst.setError(null);
+                    tilFirstName.setError(null);
                 }
             }
-            @Override public void afterTextChanged(android.text.Editable s) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
 
         etLastName.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0 && (s.length() < 3 || s.length() > 10)) {
-                    tilLast.setError("Must be 3-10 characters");
+                    tilLastName.setError("Must be 3-10 characters");
                 } else {
-                    tilLast.setError(null);
+                    tilLastName.setError(null);
                 }
             }
-            @Override public void afterTextChanged(android.text.Editable s) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
 
-        etEmail.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+        etEmailSignUp.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0 && !Patterns.EMAIL_ADDRESS.matcher(s).matches()) {
-                    tilEmail.setError("Invalid email format");
+                    tilEmailSignUp.setError("Invalid email format");
                 } else {
-                    tilEmail.setError(null);
+                    tilEmailSignUp.setError(null);
                 }
             }
-            @Override public void afterTextChanged(android.text.Editable s) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
 
-        etPassword.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+        etPasswordSignUp.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String pass = s.toString();
                 if (pass.length() > 0 && !isValidPassword(pass)) {
-                    tilPass.setError("6-12 chars, 1 digit, 1 lower, 1 upper");
+                    tilPasswordSignUp.setError("6-12 chars, 1 digit, 1 lower, 1 upper");
                 } else {
-                    tilPass.setError(null);
+                    tilPasswordSignUp.setError(null);
                 }
 
                 String confirm = etConfirmPassword.getText().toString();
                 if (!confirm.isEmpty()) {
-                    if (!pass.equals(confirm)) tilConfirm.setError("Passwords do not match");
-                    else tilConfirm.setError(null);
+                    if (!pass.equals(confirm))
+                        tilConfirmPassword.setError("Passwords do not match");
+                    else
+                        tilConfirmPassword.setError(null);
                 }
             }
-            @Override public void afterTextChanged(android.text.Editable s) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
 
         etConfirmPassword.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String confirm = s.toString();
-                String pass = etPassword.getText().toString();
-                if (confirm.length() > 0 && !confirm.equals(pass)) tilConfirm.setError("Passwords do not match");
-                else tilConfirm.setError(null);
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
-            @Override public void afterTextChanged(android.text.Editable s) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String confirm = s.toString();
+                String pass = etPasswordSignUp.getText().toString();
+                if (confirm.length() > 0 && !confirm.equals(pass))
+                    tilConfirmPassword.setError("Passwords do not match");
+                else
+                    tilConfirmPassword.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
     }
 
