@@ -22,6 +22,7 @@ public class FinanceRepository {
     private final BudgetDb budgetDb;
     private final CategoryDb categoryDb;
     private final UserDb userDb;
+    private final com.personal.finance.data.sqlite.SavingsGoalDb savingsGoalDb;
 
     // keep background executor (replacement for Room executor)
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -31,6 +32,7 @@ public class FinanceRepository {
         budgetDb = new BudgetDb(application);
         categoryDb = new CategoryDb(application);
         userDb = new UserDb(application);
+        savingsGoalDb = new com.personal.finance.data.sqlite.SavingsGoalDb(application);
     }
 
     // ---------------- Transactions (read) ----------------
@@ -64,6 +66,14 @@ public class FinanceRepository {
 
     public List<CategorySum> getCategoryGroupedSums(String email, String type, long startDate, long endDate) {
         return transactionDb.getCategoryGroupedSums(email, type, startDate, endDate);
+    }
+
+    public double[] getMonthlySumsByType(String email, String type, long startDate, long endDate) {
+        return transactionDb.getMonthlySumsByType(email, type, startDate, endDate);
+    }
+
+    public double[] getDailySumsByType(String email, String type, long startDate, long endDate, int days) {
+        return transactionDb.getDailySumsByType(email, type, startDate, endDate, days);
     }
 
     // ---------------- Transactions (write async) ----------------
@@ -110,6 +120,10 @@ public class FinanceRepository {
         return budgetDb.getAllBudgets(email);
     }
 
+    public List<Budget> getBudgetsForMonth(String email, int month, int year) {
+        return budgetDb.getBudgetsForMonth(email, month, year);
+    }
+
     public void insertBudget(Budget budget) {
         executor.execute(() -> budgetDb.insert(budget));
     }
@@ -122,12 +136,13 @@ public class FinanceRepository {
         executor.execute(() -> budgetDb.update(budget));
     }
 
-    public double getTotalExpenseForCategoryByDate(String email, String category, long startDate, long endDate) {
-        return transactionDb.getTotalExpenseForCategoryByDate(email, category, startDate, endDate);
+    // ---------------- Savings Goals ----------------
+    public void setSavingsGoal(com.personal.finance.data.model.SavingsGoal goal) {
+        executor.execute(() -> savingsGoalDb.insert(goal));
     }
 
-    public void updateBudgetAlerts(long budgetId, int alert50Sent, int alert100Sent) {
-        executor.execute(() -> budgetDb.updateAlerts(budgetId, alert50Sent, alert100Sent));
+    public com.personal.finance.data.model.SavingsGoal getSavingsGoal(String email, int month, int year) {
+        return savingsGoalDb.getGoalForMonth(email, month, year);
     }
 
     // ---------------- Pre-populate categories ----------------

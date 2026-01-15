@@ -3,6 +3,7 @@
         <item>Month</item>
         <item>Week</item>
         <item>Day</item>
+        <item>Year</item>
         <item>Custom</item>
     </string-array>
 </resources>

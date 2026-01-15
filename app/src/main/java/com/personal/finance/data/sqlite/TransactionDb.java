@@ -44,13 +44,13 @@ public class TransactionDb {
         cv.put("userEmail", t.getUserEmail());
 
         return db.update("transactions", cv, "id=?",
-                new String[]{String.valueOf(t.getId())});
+                new String[] { String.valueOf(t.getId()) });
     }
 
     // DELETE by id (أفضل من delete(object) مباشرة)
     public int deleteById(long id) {
         SQLiteDatabase db = helper.getWritableDatabase();
-        return db.delete("transactions", "id=?", new String[]{String.valueOf(id)});
+        return db.delete("transactions", "id=?", new String[] { String.valueOf(id) });
     }
 
     // Optional: delete using object fields (لو حابة)
@@ -63,24 +63,21 @@ public class TransactionDb {
         return queryTransactions(
                 "SELECT id, amount, date, category, description, type, userEmail " +
                         "FROM transactions WHERE userEmail=? ORDER BY date DESC",
-                new String[]{email}
-        );
+                new String[] { email });
     }
 
     public List<Transaction> getIncomes(String email) {
         return queryTransactions(
                 "SELECT id, amount, date, category, description, type, userEmail " +
                         "FROM transactions WHERE userEmail=? AND type='INCOME' ORDER BY date DESC",
-                new String[]{email}
-        );
+                new String[] { email });
     }
 
     public List<Transaction> getExpenses(String email) {
         return queryTransactions(
                 "SELECT id, amount, date, category, description, type, userEmail " +
                         "FROM transactions WHERE userEmail=? AND type='EXPENSE' ORDER BY date DESC",
-                new String[]{email}
-        );
+                new String[] { email });
     }
 
     private List<Transaction> queryTransactions(String sql, String[] args) {
@@ -116,63 +113,35 @@ public class TransactionDb {
     public double getTotalIncome(String email) {
         return querySum(
                 "SELECT SUM(amount) FROM transactions WHERE userEmail=? AND type='INCOME'",
-                new String[]{email}
-        );
+                new String[] { email });
     }
 
     public double getTotalExpense(String email) {
         return querySum(
                 "SELECT SUM(amount) FROM transactions WHERE userEmail=? AND type='EXPENSE'",
-                new String[]{email}
-        );
+                new String[] { email });
     }
 
     public double getTotalIncomeByDate(String email, long startDate, long endDate) {
         return querySum(
                 "SELECT SUM(amount) FROM transactions WHERE userEmail=? AND type='INCOME' AND date>=? AND date<=?",
-                new String[]{email, String.valueOf(startDate), String.valueOf(endDate)}
-        );
+                new String[] { email, String.valueOf(startDate), String.valueOf(endDate) });
     }
 
     public double getTotalExpenseByDate(String email, long startDate, long endDate) {
         return querySum(
                 "SELECT SUM(amount) FROM transactions WHERE userEmail=? AND type='EXPENSE' AND date>=? AND date<=?",
-                new String[]{email, String.valueOf(startDate), String.valueOf(endDate)}
-        );
+                new String[] { email, String.valueOf(startDate), String.valueOf(endDate) });
     }
 
     private double querySum(String sql, String[] args) {
         SQLiteDatabase db = helper.getReadableDatabase();
         try (Cursor c = db.rawQuery(sql, args)) {
-            if (!c.moveToFirst() || c.isNull(0)) return 0.0;
+            if (!c.moveToFirst() || c.isNull(0))
+                return 0.0;
             return c.getDouble(0);
         }
     }
-
-    public double getTotalExpenseForCategoryByDate(String email, String category, long startDate, long endDate) {
-        SQLiteDatabase db = helper.getReadableDatabase();
-
-        String sql =
-                "SELECT SUM(amount) " +
-                        "FROM transactions " +
-                        "WHERE userEmail=? " +
-                        "AND type='EXPENSE' " +
-                        "AND category=? COLLATE NOCASE " +
-                        "AND date>=? AND date<=?";
-
-        String[] args = new String[]{
-                email,
-                category,
-                String.valueOf(startDate),
-                String.valueOf(endDate)
-        };
-
-        try (Cursor c = db.rawQuery(sql, args)) {
-            if (!c.moveToFirst() || c.isNull(0)) return 0.0;
-            return c.getDouble(0);
-        }
-    }
-
 
     // ---------- Category grouped sums ----------
     public List<CategorySum> getCategoryGroupedSums(String email, String type, long startDate, long endDate) {
@@ -184,7 +153,7 @@ public class TransactionDb {
                 "WHERE userEmail=? AND type=? AND date>=? AND date<=? " +
                 "GROUP BY category";
 
-        String[] args = new String[]{
+        String[] args = new String[] {
                 email, type, String.valueOf(startDate), String.valueOf(endDate)
         };
 
@@ -200,5 +169,74 @@ public class TransactionDb {
         }
 
         return res;
+    }
+
+    public double[] getMonthlySumsByType(String email, String type, long startDate, long endDate) {
+        double[] monthlySums = new double[12];
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+        // Grouping by month (01-12)
+        String sql = "SELECT strftime('%m', datetime(date/1000, 'unixepoch')) as month, SUM(amount) as total " +
+                "FROM transactions " +
+                "WHERE userEmail=? AND type=? AND date>=? AND date<=? " +
+                "GROUP BY month";
+
+        String[] args = new String[] {
+                email, type, String.valueOf(startDate), String.valueOf(endDate)
+        };
+
+        try (Cursor c = db.rawQuery(sql, args)) {
+            while (c.moveToNext()) {
+                String mStr = c.getString(0);
+                if (mStr != null) {
+                    int monthIdx = Integer.parseInt(mStr) - 1; // 01-12 -> 0-11
+                    double total = c.getDouble(1);
+                    if (monthIdx >= 0 && monthIdx < 12) {
+                        monthlySums[monthIdx] = total;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return monthlySums;
+    }
+
+    public double[] getDailySumsByType(String email, String type, long startDate, long endDate, int days) {
+        double[] dailySums = new double[days];
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+        // Grouping by day of month (01-31) or offset from startDate?
+        // Offset from startDate is safer for weekly.
+        // Let's use datetime(date/1000, 'unixepoch') and compare with startDate day.
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTimeInMillis(startDate);
+        int startDayOfYear = cal.get(java.util.Calendar.DAY_OF_YEAR);
+
+        String sql = "SELECT date, amount FROM transactions WHERE userEmail=? AND type=? AND date>=? AND date<=?";
+        String[] args = new String[] { email, type, String.valueOf(startDate), String.valueOf(endDate) };
+
+        try (Cursor c = db.rawQuery(sql, args)) {
+            while (c.moveToNext()) {
+                long d = c.getLong(0);
+                double amt = c.getDouble(1);
+
+                cal.setTimeInMillis(d);
+                int currentDayOfYear = cal.get(java.util.Calendar.DAY_OF_YEAR);
+                int diff = currentDayOfYear - startDayOfYear;
+
+                // Handle year rollover (simplified)
+                if (diff < 0)
+                    diff += cal.getActualMaximum(java.util.Calendar.DAY_OF_YEAR);
+
+                if (diff >= 0 && diff < days) {
+                    dailySums[diff] += amt;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dailySums;
     }
 }

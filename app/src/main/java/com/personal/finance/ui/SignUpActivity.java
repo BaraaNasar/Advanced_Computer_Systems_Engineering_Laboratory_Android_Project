@@ -67,6 +67,7 @@ public class SignUpActivity extends AppCompatActivity {
         clearErrors();
 
         if (!validateInput(firstName, lastName, email, password, confirmPassword)) {
+            Toast.makeText(this, "Registration Failed: Please fix the errors in red", Toast.LENGTH_SHORT).show();
             return;
         }
 

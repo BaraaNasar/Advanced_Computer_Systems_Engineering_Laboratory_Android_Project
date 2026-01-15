@@ -56,6 +56,14 @@ public class FinanceViewModel extends AndroidViewModel {
         return repository.getCategoryGroupedSums(email, type, startDate, endDate);
     }
 
+    public double[] getMonthlySumsByType(String email, String type, long startDate, long endDate) {
+        return repository.getMonthlySumsByType(email, type, startDate, endDate);
+    }
+
+    public double[] getDailySumsByType(String email, String type, long startDate, long endDate, int days) {
+        return repository.getDailySumsByType(email, type, startDate, endDate, days);
+    }
+
     // -------- Transactions (write async in repository) --------
     public void addTransaction(Transaction transaction) {
         repository.insertTransaction(transaction);
@@ -100,7 +108,12 @@ public class FinanceViewModel extends AndroidViewModel {
 
     // -------- Budgets --------
     public List<Budget> getBudgets(String email) {
+        // Fallback or gets for current month if not specified
         return repository.getAllBudgets(email);
+    }
+
+    public List<Budget> getBudgets(String email, int month, int year) {
+        return repository.getBudgetsForMonth(email, month, year);
     }
 
     public void addBudget(Budget budget) {
@@ -115,24 +128,65 @@ public class FinanceViewModel extends AndroidViewModel {
         repository.updateBudget(budget);
     }
 
-    public double getSpentAmountForCategory(String email, String category) {
+    public double getSpentAmountForCategory(String email, String category, int month, int year) {
         List<Transaction> allTransactions = repository.getAllTransactions(email);
         double totalSpent = 0.0;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+
         for (Transaction transaction : allTransactions) {
+            cal.setTimeInMillis(transaction.getDate());
+            int tMonth = cal.get(java.util.Calendar.MONTH);
+            int tYear = cal.get(java.util.Calendar.YEAR);
+
             if ("EXPENSE".equalsIgnoreCase(transaction.getType()) &&
-                    category.equalsIgnoreCase(transaction.getCategory())) {
+                    category.equalsIgnoreCase(transaction.getCategory()) &&
+                    tMonth == month && tYear == year) {
                 totalSpent += transaction.getAmount();
             }
         }
         return totalSpent;
     }
 
-    public double getTotalExpenseForCategoryByDate(String email, String category, long startDate, long endDate) {
-        return repository.getTotalExpenseForCategoryByDate(email, category, startDate, endDate);
+    public String getBudgetAlertMessage(String email, String category, int month, int year) {
+        List<Budget> budgets = getBudgets(email, month, year);
+        for (Budget b : budgets) {
+            if (b.getCategory().equalsIgnoreCase(category)) {
+                double spent = getSpentAmountForCategory(email, category, month, year);
+                double limit = b.getLimitAmount();
+                int percentage = (int) ((spent / limit) * 100);
+                if (percentage >= 100) {
+                    return "Alert: " + category + " budget exceeded!";
+                } else if (percentage >= 50) {
+                    return "Alert: " + category + " at " + percentage + "%";
+                }
+            }
+        }
+        return null;
     }
 
-    public void updateBudgetAlerts(long budgetId, int alert50Sent, int alert100Sent) {
-        repository.updateBudgetAlerts(budgetId, alert50Sent, alert100Sent);
+    public java.util.List<String> getAllBudgetAlerts(String email, int month, int year) {
+        java.util.List<String> alerts = new java.util.ArrayList<>();
+        List<Budget> budgets = getBudgets(email, month, year);
+        for (Budget b : budgets) {
+            double spent = getSpentAmountForCategory(email, b.getCategory(), month, year);
+            double limit = b.getLimitAmount();
+            int percentage = (int) ((spent / limit) * 100);
+            if (percentage >= 100) {
+                alerts.add(b.getCategory() + " exceeded");
+            } else if (percentage >= 50) {
+                alerts.add(b.getCategory() + " at " + percentage + "%");
+            }
+        }
+        return alerts;
+    }
+
+    // -------- Savings Goals --------
+    public void setSavingsGoal(com.personal.finance.data.model.SavingsGoal goal) {
+        repository.setSavingsGoal(goal);
+    }
+
+    public com.personal.finance.data.model.SavingsGoal getSavingsGoal(String email, int month, int year) {
+        return repository.getSavingsGoal(email, month, year);
     }
 
     // -------- User --------

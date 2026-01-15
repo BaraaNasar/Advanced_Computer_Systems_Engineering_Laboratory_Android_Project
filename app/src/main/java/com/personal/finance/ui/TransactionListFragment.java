@@ -32,7 +32,7 @@ public class TransactionListFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+            ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_transaction_list, container, false);
     }
 
@@ -45,8 +45,6 @@ public class TransactionListFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
-
         adapter = new TransactionAdapter();
         recyclerView.setAdapter(adapter);
 
@@ -78,15 +76,14 @@ public class TransactionListFragment extends Fragment {
     }
 
     private void loadTransactions(String email) {
-        if (email == null) return;
+        if (email == null)
+            return;
 
         new Thread(() -> {
             List<Transaction> list = financeViewModel.getTransactionsList(email);
             requireActivity().runOnUiThread(() -> adapter.setTransactions(list));
         }).start();
     }
-
-    private long selectedDateTimestamp = System.currentTimeMillis();
 
     private void showEditDialog(String email, Transaction existingTransaction) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -98,56 +95,24 @@ public class TransactionListFragment extends Fragment {
         EditText etAmount = view.findViewById(R.id.etAmount);
         android.widget.Spinner spinnerCategory = view.findViewById(R.id.spinnerCategory);
         EditText etDescription = view.findViewById(R.id.etDescription);
-        android.widget.TextView tvDate = view.findViewById(R.id.tvTransactionDate);
 
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
-
-        // Fill existing values
         etAmount.setText(String.valueOf(existingTransaction.getAmount()));
         etDescription.setText(existingTransaction.getDescription());
 
-        selectedDateTimestamp = existingTransaction.getDate();
-        tvDate.setText(sdf.format(new java.util.Date(selectedDateTimestamp)));
-
-        // Date picker with maxDate = today (no future)
-        tvDate.setOnClickListener(v -> {
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            cal.setTimeInMillis(selectedDateTimestamp);
-
-            android.app.DatePickerDialog dp = new android.app.DatePickerDialog(
-                    requireContext(),
-                    (picker, year, month, dayOfMonth) -> {
-                        java.util.Calendar newCal = java.util.Calendar.getInstance();
-                        newCal.set(year, month, dayOfMonth, 0, 0, 0);
-                        newCal.set(java.util.Calendar.MILLISECOND, 0);
-                        selectedDateTimestamp = newCal.getTimeInMillis();
-                        tvDate.setText(sdf.format(new java.util.Date(selectedDateTimestamp)));
-                    },
-                    cal.get(java.util.Calendar.YEAR),
-                    cal.get(java.util.Calendar.MONTH),
-                    cal.get(java.util.Calendar.DAY_OF_MONTH)
-            );
-
-            dp.getDatePicker().setMaxDate(System.currentTimeMillis());
-            dp.show();
-        });
-
-        // Spinner adapter
-        android.widget.ArrayAdapter<String> catAdapter =
-                new android.widget.ArrayAdapter<>(requireContext(),
-                        android.R.layout.simple_spinner_item, new java.util.ArrayList<>());
+        android.widget.ArrayAdapter<String> catAdapter = new android.widget.ArrayAdapter<>(
+                requireContext(), android.R.layout.simple_spinner_item, new ArrayList<>());
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(catAdapter);
 
-        // Load categories in background
         new Thread(() -> {
             String tType = existingTransaction.getType();
-            if (tType == null) tType = "EXPENSE";
+            if (tType == null)
+                tType = "EXPENSE";
 
-            List<com.personal.finance.data.model.Category> categories =
-                    financeViewModel.getCategoriesByType(email, tType);
+            List<com.personal.finance.data.model.Category> categories = financeViewModel.getCategoriesByType(email,
+                    tType);
 
-            List<String> names = new java.util.ArrayList<>();
+            List<String> names = new ArrayList<>();
             int selectedIndex = 0;
 
             for (int i = 0; i < categories.size(); i++) {
@@ -163,66 +128,56 @@ public class TransactionListFragment extends Fragment {
                 catAdapter.clear();
                 catAdapter.addAll(names);
                 catAdapter.notifyDataSetChanged();
-                if (!names.isEmpty()) spinnerCategory.setSelection(finalSelectedIndex);
+                if (!names.isEmpty())
+                    spinnerCategory.setSelection(finalSelectedIndex);
             });
         }).start();
 
-        builder.setPositiveButton("Save", null);
-        builder.setNegativeButton("Cancel", (d, w) -> d.dismiss());
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-
-            // 1) categories empty
-            if (spinnerCategory.getAdapter() == null || spinnerCategory.getAdapter().getCount() == 0) {
-                Toast.makeText(getContext(),
-                        "Please add a category first from Settings",
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            // 2) category null/empty
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String amountStr = etAmount.getText().toString().trim();
+            String description = etDescription.getText().toString().trim();
             String category = spinnerCategory.getSelectedItem() != null
                     ? spinnerCategory.getSelectedItem().toString()
                     : null;
 
-            if (category == null || category.trim().isEmpty()) {
-                Toast.makeText(getContext(), "Please select a category", Toast.LENGTH_SHORT).show();
-                return;
+            if (!amountStr.isEmpty() && category != null) {
+                double amount;
+                try {
+                    amount = Double.parseDouble(amountStr);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                existingTransaction.setAmount(amount);
+                existingTransaction.setCategory(category);
+                existingTransaction.setDescription(description);
+
+                financeViewModel.updateTransaction(existingTransaction);
+                if ("EXPENSE".equalsIgnoreCase(existingTransaction.getType())) {
+                    checkBudgetAfterUpdate(email, existingTransaction);
+                }
+                loadTransactions(email);
+            } else {
+                Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
             }
-
-            // 3) amount validation
-            String amountStr = etAmount.getText().toString().trim();
-            if (amountStr.isEmpty()) {
-                Toast.makeText(getContext(), "Amount is required", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            double amount;
-            try {
-                amount = Double.parseDouble(amountStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (amount <= 0) {
-                Toast.makeText(getContext(), "Amount must be more than 0", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // 4) save
-            existingTransaction.setAmount(amount);
-            existingTransaction.setCategory(category);
-            existingTransaction.setDescription(etDescription.getText().toString().trim());
-            existingTransaction.setDate(selectedDateTimestamp);
-
-            financeViewModel.updateTransaction(existingTransaction);
-            loadTransactions(email);
-
-            dialog.dismiss();
         });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    private void checkBudgetAfterUpdate(String email, Transaction t) {
+        new Thread(() -> {
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTimeInMillis(t.getDate());
+            int month = cal.get(java.util.Calendar.MONTH);
+            int year = cal.get(java.util.Calendar.YEAR);
+
+            String msg = financeViewModel.getBudgetAlertMessage(email, t.getCategory(), month, year);
+            if (msg != null) {
+                requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show());
+            }
+        }).start();
     }
 }

@@ -24,9 +24,8 @@ import java.util.Map;
 public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder> {
 
     private List<Budget> budgets = new ArrayList<>();
-    private Map<Long, Double> spentAmounts = new HashMap<>();
-
-    private OnItemClickListener listener;
+    private Map<String, Double> spentAmounts = new HashMap<>();
+    private OnBudgetActionListener listener;
 
     @NonNull
     @Override
@@ -40,9 +39,9 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     public void onBindViewHolder(@NonNull BudgetViewHolder holder, int position) {
         Budget budget = budgets.get(position);
         double limit = budget.getLimitAmount();
-        double spent = spentAmounts.getOrDefault(budget.getId(), 0.0);
+        double spent = spentAmounts.getOrDefault(budget.getCategory(), 0.0);
         double remaining = limit - spent;
-        int percentage = (limit <= 0) ? 0 : (int) ((spent / limit) * 100);
+        int percentage = (int) ((spent / limit) * 100);
 
         // Set basic info
         holder.tvCategory.setText(budget.getCategory());
@@ -68,20 +67,16 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         }
         holder.progressBar.setProgressTintList(android.content.res.ColorStateList.valueOf(progressColor));
 
-        // Show alert icon if >= 50%
-        if (percentage >= 50) {
-            holder.ivAlert.setVisibility(View.VISIBLE);
-            if (percentage >= 100) {
-                // Red alert for exceeded budget
-                holder.ivAlert
-                        .setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_expense));
-            } else {
-                // Orange alert for 50%+
-                holder.ivAlert.setColorFilter(Color.parseColor("#FFA726"));
-            }
-        } else {
-            holder.ivAlert.setVisibility(View.GONE);
-        }
+        // Actions
+        holder.btnEdit.setOnClickListener(v -> {
+            if (listener != null)
+                listener.onEdit(budget);
+        });
+
+        holder.btnDelete.setOnClickListener(v -> {
+            if (listener != null)
+                listener.onDelete(budget);
+        });
     }
 
     @Override
@@ -94,7 +89,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         notifyDataSetChanged();
     }
 
-    public void setSpentAmounts(Map<Long, Double> spentAmounts) {
+    public void setSpentAmounts(Map<String, Double> spentAmounts) {
         this.spentAmounts = spentAmounts;
         notifyDataSetChanged();
     }
@@ -106,7 +101,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     class BudgetViewHolder extends RecyclerView.ViewHolder {
         TextView tvCategory, tvLimit, tvSpent, tvRemaining, tvPercentage;
         ProgressBar progressBar;
-        ImageView ivAlert;
+        android.widget.ImageButton btnEdit, btnDelete;
 
         public BudgetViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -116,22 +111,18 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             tvRemaining = itemView.findViewById(R.id.tvBudgetRemaining);
             tvPercentage = itemView.findViewById(R.id.tvBudgetPercentage);
             progressBar = itemView.findViewById(R.id.progressBudget);
-            ivAlert = itemView.findViewById(R.id.ivBudgetAlert);
-
-            itemView.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (listener != null && position != RecyclerView.NO_POSITION) {
-                    listener.onItemClick(budgets.get(position));
-                }
-            });
+            btnEdit = itemView.findViewById(R.id.btnEditBudget);
+            btnDelete = itemView.findViewById(R.id.btnDeleteBudget);
         }
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(Budget budget);
+    public interface OnBudgetActionListener {
+        void onEdit(Budget budget);
+
+        void onDelete(Budget budget);
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener) {
+    public void setOnBudgetActionListener(OnBudgetActionListener listener) {
         this.listener = listener;
     }
 }

@@ -1,6 +1,6 @@
 package com.personal.finance.ui;
 
-import android.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +37,7 @@ public class IncomeFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+            ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_transaction_list, container, false);
     }
 
@@ -50,8 +50,6 @@ public class IncomeFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
-
         adapter = new TransactionAdapter();
         recyclerView.setAdapter(adapter);
 
@@ -69,7 +67,7 @@ public class IncomeFragment extends Fragment {
 
             @Override
             public void onDelete(Transaction transaction) {
-                new AlertDialog.Builder(getContext())
+                new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("Delete Transaction")
                         .setMessage("Are you sure you want to delete this income?")
                         .setPositiveButton("Delete", (dialog, which) -> {
@@ -83,7 +81,8 @@ public class IncomeFragment extends Fragment {
     }
 
     private void loadIncomes(String email) {
-        if (email == null) return;
+        if (email == null)
+            return;
 
         new Thread(() -> {
             List<Transaction> incomes = financeViewModel.getIncomes(email);
@@ -92,7 +91,7 @@ public class IncomeFragment extends Fragment {
     }
 
     private void showAddDialog(String email, @Nullable Transaction existingTransaction) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle(existingTransaction == null ? "Add Income" : "Edit Income");
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_transaction, null);
@@ -102,6 +101,10 @@ public class IncomeFragment extends Fragment {
         android.widget.Spinner spinnerCategory = dialogView.findViewById(R.id.spinnerCategory);
         EditText etDescription = dialogView.findViewById(R.id.etDescription);
         android.widget.TextView tvDate = dialogView.findViewById(R.id.tvTransactionDate);
+        com.google.android.material.card.MaterialCardView cardCategory = dialogView.findViewById(R.id.cardCategory);
+
+        // Make the entire category card clickable to open spinner
+        cardCategory.setOnClickListener(v -> spinnerCategory.performClick());
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -114,7 +117,8 @@ public class IncomeFragment extends Fragment {
         }
         tvDate.setText(sdf.format(new Date(selectedDateTimestamp)));
 
-        tvDate.setOnClickListener(v -> {
+        com.google.android.material.card.MaterialCardView cardDate = dialogView.findViewById(R.id.cardDate);
+        View.OnClickListener dateClickListener = v -> {
             java.util.Calendar cal = java.util.Calendar.getInstance();
             cal.setTimeInMillis(selectedDateTimestamp);
             new android.app.DatePickerDialog(requireContext(), (view1, year, month, dayOfMonth) -> {
@@ -124,19 +128,21 @@ public class IncomeFragment extends Fragment {
                 tvDate.setText(sdf.format(new Date(selectedDateTimestamp)));
             }, cal.get(java.util.Calendar.YEAR), cal.get(java.util.Calendar.MONTH),
                     cal.get(java.util.Calendar.DAY_OF_MONTH)).show();
-        });
+        };
+
+        tvDate.setOnClickListener(dateClickListener);
+        cardDate.setOnClickListener(dateClickListener);
 
         // Populate Spinner (INCOME categories) - no LiveData now
         List<com.personal.finance.data.model.Category> categoryList = new ArrayList<>();
-        android.widget.ArrayAdapter<String> catAdapter =
-                new android.widget.ArrayAdapter<>(requireContext(),
-                        android.R.layout.simple_spinner_item, new ArrayList<>());
+        android.widget.ArrayAdapter<String> catAdapter = new android.widget.ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, new ArrayList<>());
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(catAdapter);
 
         new Thread(() -> {
-            List<com.personal.finance.data.model.Category> categories =
-                    financeViewModel.getCategoriesByType(email, "INCOME");
+            List<com.personal.finance.data.model.Category> categories = financeViewModel.getCategoriesByType(email,
+                    "INCOME");
 
             categoryList.clear();
             categoryList.addAll(categories);
@@ -156,71 +162,47 @@ public class IncomeFragment extends Fragment {
                 catAdapter.clear();
                 catAdapter.addAll(names);
                 catAdapter.notifyDataSetChanged();
-                if (!names.isEmpty()) spinnerCategory.setSelection(finalSelectedIndex);
+                if (!names.isEmpty())
+                    spinnerCategory.setSelection(finalSelectedIndex);
             });
         }).start();
 
-        builder.setPositiveButton("Save", null);
-        builder.setNegativeButton("Cancel", (d, w) -> d.dismiss());
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-
+        builder.setPositiveButton("Save", (dialog, which) -> {
             String amountStr = etAmount.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
-
-            // 1) Spinner empty?
-            if (spinnerCategory.getAdapter() == null || spinnerCategory.getAdapter().getCount() == 0) {
-                Toast.makeText(getContext(), "Please add a category first from Settings", Toast.LENGTH_LONG).show();
-                return;
-            }
 
             String category = spinnerCategory.getSelectedItem() != null
                     ? spinnerCategory.getSelectedItem().toString()
                     : null;
 
-            if (category == null || category.trim().isEmpty()) {
-                Toast.makeText(getContext(), "Please select a category", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            if (!amountStr.isEmpty() && category != null) {
+                double amount;
+                try {
+                    amount = Double.parseDouble(amountStr);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-            // 2) amount empty?
-            if (amountStr.isEmpty()) {
-                Toast.makeText(getContext(), "Amount is required", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                if (existingTransaction == null) {
+                    Transaction t = new Transaction(
+                            amount, selectedDateTimestamp, category, description, "INCOME", email);
+                    financeViewModel.addTransaction(t);
+                } else {
+                    existingTransaction.setAmount(amount);
+                    existingTransaction.setCategory(category);
+                    existingTransaction.setDescription(description);
+                    existingTransaction.setDate(selectedDateTimestamp);
+                    financeViewModel.updateTransaction(existingTransaction);
+                }
 
-            double amount;
-            try {
-                amount = Double.parseDouble(amountStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // 3) amount <= 0 ?
-            if (amount <= 0) {
-                Toast.makeText(getContext(), "Amount must be more than 0", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Save
-            if (existingTransaction == null) {
-                Transaction t = new Transaction(amount, selectedDateTimestamp, category, description, "INCOME", email);
-                financeViewModel.addTransaction(t);
+                loadIncomes(email); // refresh
             } else {
-                existingTransaction.setAmount(amount);
-                existingTransaction.setCategory(category);
-                existingTransaction.setDescription(description);
-                existingTransaction.setDate(selectedDateTimestamp);
-                financeViewModel.updateTransaction(existingTransaction);
+                Toast.makeText(getContext(), "Invalid input or missing category", Toast.LENGTH_SHORT).show();
             }
-
-            loadIncomes(email);
-            dialog.dismiss();
         });
 
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
     }
-    }
+}

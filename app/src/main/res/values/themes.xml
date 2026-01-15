@@ -79,9 +79,16 @@
         <item name="android:layout_margin">8dp</item>
         <item name="cardBackgroundColor">?attr/colorSurface</item>
     </style>
-    <!-- Custom AlertDialog Style -->
     <style name="CustomAlertDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="background">@drawable/bg_dialog_rounded</item>
+    </style>
+
+    <!-- Custom Date Picker Theme for High Visibility -->
+    <style name="CustomDatePickerTheme" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/primary</item>
     </style>
 </resources>

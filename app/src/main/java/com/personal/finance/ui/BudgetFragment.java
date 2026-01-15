@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,12 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.personal.finance.R;
 import com.personal.finance.data.model.Budget;
-import com.personal.finance.data.model.Category;
 import com.personal.finance.ui.adapter.BudgetAdapter;
 import com.personal.finance.ui.viewmodel.FinanceViewModel;
 import com.personal.finance.utils.SessionManager;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +31,17 @@ public class BudgetFragment extends Fragment {
     private BudgetAdapter adapter;
     private SessionManager sessionManager;
 
+    private int selectedMonth;
+    private int selectedYear;
+    private java.text.SimpleDateFormat monthFormat = new java.text.SimpleDateFormat("MMMM yyyy",
+            java.util.Locale.getDefault());
+    private android.widget.TextView tvSelectedMonth;
+    private android.widget.TextView tvGoalAmount, tvSavedAmount, tvGoalStatus;
+    private android.widget.ProgressBar progressSavings;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+            ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_budget, container, false);
     }
 
@@ -53,167 +57,216 @@ public class BudgetFragment extends Fragment {
             return;
         }
 
+        // Init Calendar to current month
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        selectedMonth = cal.get(java.util.Calendar.MONTH);
+        selectedYear = cal.get(java.util.Calendar.YEAR);
+
+        // UI Refs
+        tvSelectedMonth = view.findViewById(R.id.tvSelectedMonth);
+
+        // Initial update
+        updateMonthDisplay();
+
         RecyclerView recyclerView = view.findViewById(R.id.rvBudgets);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new BudgetAdapter();
         recyclerView.setAdapter(adapter);
 
+        adapter.setOnBudgetActionListener(new BudgetAdapter.OnBudgetActionListener() {
+            @Override
+            public void onEdit(Budget budget) {
+                showUpdateLimitDialog(budget);
+            }
+
+            @Override
+            public void onDelete(Budget budget) {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Delete Budget")
+                        .setMessage("Are you sure you want to delete this budget?")
+                        .setPositiveButton("Yes", (d, w) -> {
+                            new Thread(() -> {
+                                financeViewModel.deleteBudget(budget);
+                                requireActivity().runOnUiThread(() -> loadData(sessionManager.getUserEmail()));
+                            }).start();
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            }
+        });
+
         financeViewModel = new ViewModelProvider(this).get(FinanceViewModel.class);
 
-        loadBudgets(email);
-
+        // Listeners
+        view.findViewById(R.id.cardMonthSelector).setOnClickListener(v -> showMonthPicker());
         view.findViewById(R.id.fabAddBudget).setOnClickListener(v -> showAddDialog(email));
+
+        loadData(email);
     }
 
-    private long startOfMonth(int month1to12, int year) {
+    private void updateMonthDisplay() {
         java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.set(java.util.Calendar.YEAR, year);
-        cal.set(java.util.Calendar.MONTH, month1to12 - 1);
-        cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
-        cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
-        cal.set(java.util.Calendar.MINUTE, 0);
-        cal.set(java.util.Calendar.SECOND, 0);
-        cal.set(java.util.Calendar.MILLISECOND, 0);
-        return cal.getTimeInMillis();
+        cal.set(java.util.Calendar.MONTH, selectedMonth);
+        cal.set(java.util.Calendar.YEAR, selectedYear);
+        tvSelectedMonth.setText(monthFormat.format(cal.getTime()));
     }
 
-    private long endOfMonth(int month1to12, int year) {
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.set(java.util.Calendar.YEAR, year);
-        cal.set(java.util.Calendar.MONTH, month1to12 - 1);
-        cal.set(java.util.Calendar.DAY_OF_MONTH, cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
-        cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
-        cal.set(java.util.Calendar.MINUTE, 59);
-        cal.set(java.util.Calendar.SECOND, 59);
-        cal.set(java.util.Calendar.MILLISECOND, 999);
-        return cal.getTimeInMillis();
+    private void showMonthPicker() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_month_year_picker, null);
+        builder.setView(dialogView);
+
+        final android.widget.NumberPicker monthPicker = dialogView.findViewById(R.id.pickerMonth);
+        final android.widget.NumberPicker yearPicker = dialogView.findViewById(R.id.pickerYear);
+
+        // Setup Month Picker
+        String[] months = new java.text.DateFormatSymbols().getShortMonths();
+        monthPicker.setMinValue(0);
+        monthPicker.setMaxValue(11);
+        monthPicker.setDisplayedValues(months);
+        monthPicker.setValue(selectedMonth);
+        monthPicker.setDescendantFocusability(android.widget.NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+
+        // Setup Year Picker
+        int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+        yearPicker.setMinValue(currentYear - 10);
+        yearPicker.setMaxValue(currentYear + 10);
+        yearPicker.setValue(selectedYear);
+        yearPicker.setDescendantFocusability(android.widget.NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            selectedMonth = monthPicker.getValue();
+            selectedYear = yearPicker.getValue();
+            updateMonthDisplay();
+            loadData(sessionManager.getUserEmail());
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.create().show();
     }
 
-    private void loadBudgets(String email) {
+    private void loadData(String email) {
         new Thread(() -> {
-            List<Budget> budgets = financeViewModel.getBudgets(email);
-
-            Map<Long, Double> spentAmounts = new HashMap<>();
+            // 1. Budgets
+            List<Budget> budgets = financeViewModel.getBudgets(email, selectedMonth, selectedYear);
+            Map<String, Double> spentAmounts = new HashMap<>();
             for (Budget budget : budgets) {
-                long start = startOfMonth(budget.getMonth(), budget.getYear());
-                long end = endOfMonth(budget.getMonth(), budget.getYear());
-
-                double spent = financeViewModel.getTotalExpenseForCategoryByDate(
-                        email,
-                        budget.getCategory(),
-                        start,
-                        end
-                );
-
-                spentAmounts.put(budget.getId(), spent);
+                double spent = financeViewModel.getSpentAmountForCategory(email, budget.getCategory(), selectedMonth,
+                        selectedYear);
+                spentAmounts.put(budget.getCategory(), spent);
             }
 
             requireActivity().runOnUiThread(() -> {
+                // Update Budgets List
                 adapter.setBudgets(budgets);
                 adapter.setSpentAmounts(spentAmounts);
 
-                // Alerts (مرة واحدة فقط)
-                for (Budget budget : budgets) {
-                    double spent = spentAmounts.getOrDefault(budget.getId(), 0.0);
-                    double limit = budget.getLimitAmount();
-                    int percentage = (limit <= 0) ? 0 : (int) ((spent / limit) * 100);
-
-                    if (percentage >= 100 && budget.getAlert100Sent() == 0) {
-                        Toast.makeText(requireContext(),
-                                budget.getCategory() + " budget exceeded! (" + percentage + "%)",
-                                Toast.LENGTH_LONG).show();
-
-                        budget.setAlert100Sent(1);
-                        financeViewModel.updateBudgetAlerts(budget.getId(), budget.getAlert50Sent(), 1);
-
-                    } else if (percentage >= 50 && budget.getAlert50Sent() == 0) {
-                        Toast.makeText(requireContext(),
-                                budget.getCategory() + " budget alert: " + percentage + "% used",
-                                Toast.LENGTH_SHORT).show();
-
-                        budget.setAlert50Sent(1);
-                        financeViewModel.updateBudgetAlerts(budget.getId(), 1, budget.getAlert100Sent());
-                    }
-                }
+                // Budget Alerts (same as before)
+                checkBudgetAlerts(budgets, spentAmounts);
             });
-
         }).start();
+    }
+
+    private void checkBudgetAlerts(List<Budget> budgets, Map<String, Double> spentAmounts) {
+        // Only show alerts if we are viewing the *current* month? Or maybe always
+        // useful.
+        // Let's stick to current month to avoid annoying toasts for history.
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        if (now.get(java.util.Calendar.MONTH) != selectedMonth || now.get(java.util.Calendar.YEAR) != selectedYear) {
+            return;
+        }
+
+        for (Budget budget : budgets) {
+            double spent = spentAmounts.getOrDefault(budget.getCategory(), 0.0);
+            double limit = budget.getLimitAmount();
+            int percentage = (int) ((spent / limit) * 100);
+            if (percentage >= 100) {
+                Toast.makeText(requireContext(), "Alert: " + budget.getCategory() + " budget exceeded!",
+                        Toast.LENGTH_LONG).show();
+            } else if (percentage >= 50) {
+                Toast.makeText(requireContext(), "Alert: " + budget.getCategory() + " at " + percentage + "%",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void showUpdateLimitDialog(Budget budget) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Update Limit for " + budget.getCategory());
+
+        final EditText input = new EditText(getContext());
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setText(String.valueOf(budget.getLimitAmount()));
+        builder.setView(input);
+
+        builder.setPositiveButton("Update", (dialog, which) -> {
+            String val = input.getText().toString();
+            if (!val.isEmpty()) {
+                double newLimit = Double.parseDouble(val);
+                budget.setLimitAmount(newLimit);
+                new Thread(() -> {
+                    financeViewModel.updateBudget(budget);
+                    requireActivity().runOnUiThread(() -> loadData(sessionManager.getUserEmail()));
+                }).start();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
     }
 
     private void showAddDialog(String email) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Set Budget");
-
+        // Custom layout logic with Spinner
         View view = getLayoutInflater().inflate(R.layout.dialog_add_budget, null);
         builder.setView(view);
 
-        Spinner spinnerCategory = view.findViewById(R.id.spinnerBudgetCategory);
-        EditText etLimit = view.findViewById(R.id.etBudgetLimit);
+        android.widget.Spinner spinner = view.findViewById(R.id.spinnerBudgetCategory);
+        android.widget.EditText etLimit = view.findViewById(R.id.etBudgetLimit);
+        android.widget.TextView tvPeriod = view.findViewById(R.id.tvBudgetPeriod);
 
-        // تجهيز Adapter للسبينر
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                new ArrayList<>()
-        );
-        catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategory.setAdapter(catAdapter);
+        // Show selected period
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(selectedYear, selectedMonth, 1);
+        tvPeriod.setText("For: " + monthFormat.format(cal.getTime()));
 
-        // تعبئة الـ Spinner من DB (Categories نوع EXPENSE)
+        // Make card clickable to open spinner
+        view.findViewById(R.id.cardBudgetCategory).setOnClickListener(v -> spinner.performClick());
+
+        // Populate Spinner with Expense Categories
         new Thread(() -> {
-            List<Category> categories = financeViewModel.getCategoriesByType(email, "EXPENSE");
-            List<String> names = new ArrayList<>();
-            for (Category c : categories) names.add(c.getName());
+            List<com.personal.finance.data.model.Category> categories = financeViewModel.getCategoriesByType(email,
+                    "EXPENSE");
+            // Extract names
+            List<String> names = new java.util.ArrayList<>();
+            for (com.personal.finance.data.model.Category c : categories)
+                names.add(c.getName());
 
             requireActivity().runOnUiThread(() -> {
-                catAdapter.clear();
-                catAdapter.addAll(names);
-                catAdapter.notifyDataSetChanged();
+                android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(
+                        requireContext(), android.R.layout.simple_spinner_item, names);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(adapter);
             });
         }).start();
 
         builder.setPositiveButton("Save", (dialog, which) -> {
+            Object selectedItem = spinner.getSelectedItem();
+            String category = (selectedItem != null) ? selectedItem.toString() : "";
             String limitStr = etLimit.getText().toString().trim();
 
-            // إذا السبنر فاضي
-            if (spinnerCategory.getAdapter() == null || spinnerCategory.getAdapter().getCount() == 0) {
-                Toast.makeText(getContext(),
-                        "Please add a category first from Settings",
-                        Toast.LENGTH_LONG).show();
-                return;
+            if (!category.isEmpty() && !limitStr.isEmpty()) {
+                double limit;
+                try {
+                    limit = Double.parseDouble(limitStr);
+                    Budget budget = new Budget(category, limit, selectedMonth, selectedYear, email);
+                    financeViewModel.addBudget(budget);
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> loadData(email), 200);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Please select category and enter limit", Toast.LENGTH_SHORT).show();
             }
-
-            String category = spinnerCategory.getSelectedItem() != null
-                    ? spinnerCategory.getSelectedItem().toString()
-                    : null;
-
-            if (category == null || category.trim().isEmpty() || limitStr.isEmpty()) {
-                Toast.makeText(getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            double limit;
-            try {
-                limit = Double.parseDouble(limitStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Invalid limit value", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (limit <= 0) {
-                Toast.makeText(getContext(), "Limit must be more than 0", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            int month = cal.get(java.util.Calendar.MONTH) + 1;
-            int year = cal.get(java.util.Calendar.YEAR);
-
-            Budget budget = new Budget(category, limit, email, month, year);
-            financeViewModel.addBudget(budget);
-
-            new android.os.Handler(android.os.Looper.getMainLooper())
-                    .postDelayed(() -> loadBudgets(email), 150);
         });
 
         builder.setNegativeButton("Cancel", null);

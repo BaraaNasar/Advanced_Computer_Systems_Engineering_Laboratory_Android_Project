@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         String userEmail = sessionManager.getUserEmail();
         if (userEmail != null) {
             financeViewModel.initializeUserData(userEmail);
+            checkBudgetAlertsOnLogin(userEmail, financeViewModel);
         }
 
         // Handle Logout manually as it's not a destination
@@ -96,6 +97,31 @@ public class MainActivity extends AppCompatActivity {
         if (userEmail != null) {
             navUserEmail.setText(userEmail);
         }
+    }
+
+    private void checkBudgetAlertsOnLogin(String email, FinanceViewModel viewModel) {
+        new Thread(() -> {
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            int month = cal.get(java.util.Calendar.MONTH);
+            int year = cal.get(java.util.Calendar.YEAR);
+            java.util.List<String> alerts = viewModel.getAllBudgetAlerts(email, month, year);
+
+            if (!alerts.isEmpty()) {
+                StringBuilder sb = new StringBuilder("Summary:\n");
+                for (String alert : alerts) {
+                    sb.append("• ").append(alert).append("\n");
+                }
+                String message = sb.toString().trim();
+
+                runOnUiThread(() -> {
+                    new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                            .setTitle("Proactive Budget Alert 🚨")
+                            .setMessage(message)
+                            .setPositiveButton("I'll check", null)
+                            .show();
+                });
+            }
+        }).start();
     }
 
     @Override
