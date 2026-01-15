@@ -149,6 +149,31 @@ public class TransactionDb {
         }
     }
 
+    public double getTotalExpenseForCategoryByDate(String email, String category, long startDate, long endDate) {
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+        String sql =
+                "SELECT SUM(amount) " +
+                        "FROM transactions " +
+                        "WHERE userEmail=? " +
+                        "AND type='EXPENSE' " +
+                        "AND category=? COLLATE NOCASE " +
+                        "AND date>=? AND date<=?";
+
+        String[] args = new String[]{
+                email,
+                category,
+                String.valueOf(startDate),
+                String.valueOf(endDate)
+        };
+
+        try (Cursor c = db.rawQuery(sql, args)) {
+            if (!c.moveToFirst() || c.isNull(0)) return 0.0;
+            return c.getDouble(0);
+        }
+    }
+
+
     // ---------- Category grouped sums ----------
     public List<CategorySum> getCategoryGroupedSums(String email, String type, long startDate, long endDate) {
         SQLiteDatabase db = helper.getReadableDatabase();

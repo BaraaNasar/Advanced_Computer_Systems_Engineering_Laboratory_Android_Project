@@ -122,6 +122,14 @@ public class FinanceRepository {
         executor.execute(() -> budgetDb.update(budget));
     }
 
+    public double getTotalExpenseForCategoryByDate(String email, String category, long startDate, long endDate) {
+        return transactionDb.getTotalExpenseForCategoryByDate(email, category, startDate, endDate);
+    }
+
+    public void updateBudgetAlerts(long budgetId, int alert50Sent, int alert100Sent) {
+        executor.execute(() -> budgetDb.updateAlerts(budgetId, alert50Sent, alert100Sent));
+    }
+
     // ---------------- Pre-populate categories ----------------
     public void prePopulateCategories(String email) {
         executor.execute(() -> {

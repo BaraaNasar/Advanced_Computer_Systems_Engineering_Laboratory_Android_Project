@@ -24,7 +24,8 @@ import java.util.Map;
 public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder> {
 
     private List<Budget> budgets = new ArrayList<>();
-    private Map<String, Double> spentAmounts = new HashMap<>();
+    private Map<Long, Double> spentAmounts = new HashMap<>();
+
     private OnItemClickListener listener;
 
     @NonNull
@@ -39,9 +40,9 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     public void onBindViewHolder(@NonNull BudgetViewHolder holder, int position) {
         Budget budget = budgets.get(position);
         double limit = budget.getLimitAmount();
-        double spent = spentAmounts.getOrDefault(budget.getCategory(), 0.0);
+        double spent = spentAmounts.getOrDefault(budget.getId(), 0.0);
         double remaining = limit - spent;
-        int percentage = (int) ((spent / limit) * 100);
+        int percentage = (limit <= 0) ? 0 : (int) ((spent / limit) * 100);
 
         // Set basic info
         holder.tvCategory.setText(budget.getCategory());
@@ -93,7 +94,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         notifyDataSetChanged();
     }
 
-    public void setSpentAmounts(Map<String, Double> spentAmounts) {
+    public void setSpentAmounts(Map<Long, Double> spentAmounts) {
         this.spentAmounts = spentAmounts;
         notifyDataSetChanged();
     }

@@ -50,6 +50,8 @@ public class IncomeFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);
+
         adapter = new TransactionAdapter();
         recyclerView.setAdapter(adapter);
 
@@ -158,43 +160,67 @@ public class IncomeFragment extends Fragment {
             });
         }).start();
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
+        builder.setPositiveButton("Save", null);
+        builder.setNegativeButton("Cancel", (d, w) -> d.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+
             String amountStr = etAmount.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
+
+            // 1) Spinner empty?
+            if (spinnerCategory.getAdapter() == null || spinnerCategory.getAdapter().getCount() == 0) {
+                Toast.makeText(getContext(), "Please add a category first from Settings", Toast.LENGTH_LONG).show();
+                return;
+            }
 
             String category = spinnerCategory.getSelectedItem() != null
                     ? spinnerCategory.getSelectedItem().toString()
                     : null;
 
-            if (!amountStr.isEmpty() && category != null) {
-                double amount;
-                try {
-                    amount = Double.parseDouble(amountStr);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (existingTransaction == null) {
-                    Transaction t = new Transaction(
-                            amount, selectedDateTimestamp, category, description, "INCOME", email
-                    );
-                    financeViewModel.addTransaction(t);
-                } else {
-                    existingTransaction.setAmount(amount);
-                    existingTransaction.setCategory(category);
-                    existingTransaction.setDescription(description);
-                    existingTransaction.setDate(selectedDateTimestamp);
-                    financeViewModel.updateTransaction(existingTransaction);
-                }
-
-                loadIncomes(email); // refresh
-            } else {
-                Toast.makeText(getContext(), "Invalid input or missing category", Toast.LENGTH_SHORT).show();
+            if (category == null || category.trim().isEmpty()) {
+                Toast.makeText(getContext(), "Please select a category", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // 2) amount empty?
+            if (amountStr.isEmpty()) {
+                Toast.makeText(getContext(), "Amount is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double amount;
+            try {
+                amount = Double.parseDouble(amountStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 3) amount <= 0 ?
+            if (amount <= 0) {
+                Toast.makeText(getContext(), "Amount must be more than 0", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Save
+            if (existingTransaction == null) {
+                Transaction t = new Transaction(amount, selectedDateTimestamp, category, description, "INCOME", email);
+                financeViewModel.addTransaction(t);
+            } else {
+                existingTransaction.setAmount(amount);
+                existingTransaction.setCategory(category);
+                existingTransaction.setDescription(description);
+                existingTransaction.setDate(selectedDateTimestamp);
+                financeViewModel.updateTransaction(existingTransaction);
+            }
+
+            loadIncomes(email);
+            dialog.dismiss();
         });
 
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
     }
-}
+    }

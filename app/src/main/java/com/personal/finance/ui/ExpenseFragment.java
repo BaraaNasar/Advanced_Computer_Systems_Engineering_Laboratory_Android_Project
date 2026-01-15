@@ -50,6 +50,8 @@ public class ExpenseFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);
+
         adapter = new TransactionAdapter();
         recyclerView.setAdapter(adapter);
 
@@ -115,13 +117,17 @@ public class ExpenseFragment extends Fragment {
         tvDate.setOnClickListener(v -> {
             java.util.Calendar cal = java.util.Calendar.getInstance();
             cal.setTimeInMillis(selectedDateTimestamp);
-            new android.app.DatePickerDialog(requireContext(), (view1, year, month, dayOfMonth) -> {
+            android.app.DatePickerDialog dp = new android.app.DatePickerDialog(requireContext(), (view1, year, month, dayOfMonth) -> {
                 java.util.Calendar newCal = java.util.Calendar.getInstance();
                 newCal.set(year, month, dayOfMonth, 0, 0, 0);
                 selectedDateTimestamp = newCal.getTimeInMillis();
                 tvDate.setText(sdf.format(new Date(selectedDateTimestamp)));
             }, cal.get(java.util.Calendar.YEAR), cal.get(java.util.Calendar.MONTH),
-                    cal.get(java.util.Calendar.DAY_OF_MONTH)).show();
+                    cal.get(java.util.Calendar.DAY_OF_MONTH));
+
+            dp.getDatePicker().setMaxDate(System.currentTimeMillis());
+            dp.show();
+
         });
 
         // Populate Spinner (EXPENSE categories) - no LiveData now
@@ -158,43 +164,66 @@ public class ExpenseFragment extends Fragment {
             });
         }).start();
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
+        builder.setPositiveButton("Save", null);
+        builder.setNegativeButton("Cancel", (d, w) -> d.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+
             String amountStr = etAmount.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
+
+            // Spinner empty?
+            if (spinnerCategory.getAdapter() == null || spinnerCategory.getAdapter().getCount() == 0) {
+                Toast.makeText(getContext(), "Please add a category first from Settings", Toast.LENGTH_LONG).show();
+                return;
+            }
 
             String category = spinnerCategory.getSelectedItem() != null
                     ? spinnerCategory.getSelectedItem().toString()
                     : null;
 
-            if (!amountStr.isEmpty() && category != null) {
-                double amount;
-                try {
-                    amount = Double.parseDouble(amountStr);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (existingTransaction == null) {
-                    Transaction t = new Transaction(
-                            amount, selectedDateTimestamp, category, description, "EXPENSE", email
-                    );
-                    financeViewModel.addTransaction(t);
-                } else {
-                    existingTransaction.setAmount(amount);
-                    existingTransaction.setCategory(category);
-                    existingTransaction.setDescription(description);
-                    existingTransaction.setDate(selectedDateTimestamp);
-                    financeViewModel.updateTransaction(existingTransaction);
-                }
-
-                loadExpenses(email); // refresh
-            } else {
-                Toast.makeText(getContext(), "Invalid input or missing category", Toast.LENGTH_SHORT).show();
+            if (category == null || category.trim().isEmpty()) {
+                Toast.makeText(getContext(), "Please select a category", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // amount empty?
+            if (amountStr.isEmpty()) {
+                Toast.makeText(getContext(), "Amount is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double amount;
+            try {
+                amount = Double.parseDouble(amountStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (amount <= 0) {
+                Toast.makeText(getContext(), "Amount must be more than 0", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Save
+            if (existingTransaction == null) {
+                Transaction t = new Transaction(amount, selectedDateTimestamp, category, description, "EXPENSE", email);
+                financeViewModel.addTransaction(t);
+            } else {
+                existingTransaction.setAmount(amount);
+                existingTransaction.setCategory(category);
+                existingTransaction.setDescription(description);
+                existingTransaction.setDate(selectedDateTimestamp);
+                financeViewModel.updateTransaction(existingTransaction);
+            }
+
+            loadExpenses(email);
+            dialog.dismiss();
         });
 
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
     }
 }

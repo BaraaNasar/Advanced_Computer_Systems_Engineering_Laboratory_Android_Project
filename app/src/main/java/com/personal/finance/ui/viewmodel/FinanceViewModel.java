@@ -127,6 +127,14 @@ public class FinanceViewModel extends AndroidViewModel {
         return totalSpent;
     }
 
+    public double getTotalExpenseForCategoryByDate(String email, String category, long startDate, long endDate) {
+        return repository.getTotalExpenseForCategoryByDate(email, category, startDate, endDate);
+    }
+
+    public void updateBudgetAlerts(long budgetId, int alert50Sent, int alert100Sent) {
+        repository.updateBudgetAlerts(budgetId, alert50Sent, alert100Sent);
+    }
+
     // -------- User --------
     public User getUser(String email) {
         return repository.getUser(email);
