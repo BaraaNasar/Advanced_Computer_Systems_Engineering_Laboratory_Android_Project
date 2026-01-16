@@ -210,11 +210,11 @@
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@android:drawable/ic_menu_revert"
-                            android:rotation="180"
                             android:background="@drawable/ic_circle_indicator"
                             android:backgroundTint="#FEE2E2"
                             android:padding="6dp"
+                            android:rotation="180"
+                            android:src="@android:drawable/ic_menu_revert"
                             app:tint="@color/color_expense" />
 
                         <TextView
@@ -315,7 +315,7 @@
                 android:id="@+id/cardBarChart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="16dp"
                 android:outlineProvider="none"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
@@ -331,7 +331,7 @@
                         android:id="@+id/barChartTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Monthly Trends"
+                        android:text="Financial Trends"
                         android:textColor="?android:textColorSecondary"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -344,6 +344,45 @@
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Detailed Report Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardReport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:outlineProvider="none"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorSurface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvReportTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Detailed Report"
+                        android:textColor="?android:textColorSecondary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvReport"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        tools:listitem="@layout/item_report_row"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

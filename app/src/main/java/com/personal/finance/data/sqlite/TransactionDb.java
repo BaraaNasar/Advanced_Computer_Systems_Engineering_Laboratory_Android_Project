@@ -6,10 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.personal.finance.data.model.CategorySum;
+import com.personal.finance.data.model.ReportRow;
 import com.personal.finance.data.model.Transaction;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class TransactionDb {
 
@@ -47,13 +50,11 @@ public class TransactionDb {
                 new String[] { String.valueOf(t.getId()) });
     }
 
-    // DELETE by id (أفضل من delete(object) مباشرة)
     public int deleteById(long id) {
         SQLiteDatabase db = helper.getWritableDatabase();
         return db.delete("transactions", "id=?", new String[] { String.valueOf(id) });
     }
 
-    // Optional: delete using object fields (لو حابة)
     public int delete(Transaction t) {
         return deleteById(t.getId());
     }
@@ -175,7 +176,6 @@ public class TransactionDb {
         double[] monthlySums = new double[12];
         SQLiteDatabase db = helper.getReadableDatabase();
 
-        // Grouping by month (01-12)
         String sql = "SELECT strftime('%m', datetime(date/1000, 'unixepoch')) as month, SUM(amount) as total " +
                 "FROM transactions " +
                 "WHERE userEmail=? AND type=? AND date>=? AND date<=? " +
@@ -189,7 +189,7 @@ public class TransactionDb {
             while (c.moveToNext()) {
                 String mStr = c.getString(0);
                 if (mStr != null) {
-                    int monthIdx = Integer.parseInt(mStr) - 1; // 01-12 -> 0-11
+                    int monthIdx = Integer.parseInt(mStr) - 1;
                     double total = c.getDouble(1);
                     if (monthIdx >= 0 && monthIdx < 12) {
                         monthlySums[monthIdx] = total;
@@ -205,10 +205,6 @@ public class TransactionDb {
     public double[] getDailySumsByType(String email, String type, long startDate, long endDate, int days) {
         double[] dailySums = new double[days];
         SQLiteDatabase db = helper.getReadableDatabase();
-
-        // Grouping by day of month (01-31) or offset from startDate?
-        // Offset from startDate is safer for weekly.
-        // Let's use datetime(date/1000, 'unixepoch') and compare with startDate day.
 
         java.util.Calendar cal = java.util.Calendar.getInstance();
         cal.setTimeInMillis(startDate);
@@ -226,7 +222,6 @@ public class TransactionDb {
                 int currentDayOfYear = cal.get(java.util.Calendar.DAY_OF_YEAR);
                 int diff = currentDayOfYear - startDayOfYear;
 
-                // Handle year rollover (simplified)
                 if (diff < 0)
                     diff += cal.getActualMaximum(java.util.Calendar.DAY_OF_YEAR);
 
@@ -238,5 +233,118 @@ public class TransactionDb {
             e.printStackTrace();
         }
         return dailySums;
+    }
+
+    // ================== REPORTS (Aggregates) ==================
+
+    /**
+     * Daily report rows inside [startDate, endDate].
+     * label: "MMM dd"
+     */
+    public List<ReportRow> getDailyReport(String email, long startDate, long endDate) {
+        SQLiteDatabase db = helper.getReadableDatabase();
+        List<ReportRow> res = new ArrayList<>();
+
+        // group by day
+        String sql =
+                "SELECT strftime('%Y-%m-%d', datetime(date/1000, 'unixepoch')) as d, " +
+                        "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
+                        "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
+                        "FROM transactions " +
+                        "WHERE userEmail=? AND date>=? AND date<=? " +
+                        "GROUP BY d " +
+                        "ORDER BY d ASC";
+
+        String[] args = new String[] { email, String.valueOf(startDate), String.valueOf(endDate) };
+
+        SimpleDateFormat inFmt = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat outFmt = new SimpleDateFormat("MMM dd", Locale.getDefault());
+
+        try (Cursor c = db.rawQuery(sql, args)) {
+            while (c.moveToNext()) {
+                String dayStr = c.getString(0);
+                double inc = c.isNull(1) ? 0.0 : c.getDouble(1);
+                double exp = c.isNull(2) ? 0.0 : c.getDouble(2);
+
+                String label = dayStr;
+                try {
+                    java.util.Date d = inFmt.parse(dayStr);
+                    if (d != null) label = outFmt.format(d);
+                } catch (Exception ignored) {}
+
+                res.add(new ReportRow(label, inc, exp));
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Weekly report rows inside [startDate, endDate].
+     * label: "YYYY-WW"
+     */
+    public List<ReportRow> getWeeklyReport(String email, long startDate, long endDate) {
+        SQLiteDatabase db = helper.getReadableDatabase();
+        List<ReportRow> res = new ArrayList<>();
+
+        String sql =
+                "SELECT strftime('%Y-%W', datetime(date/1000, 'unixepoch')) as yw, " +
+                        "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
+                        "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
+                        "FROM transactions " +
+                        "WHERE userEmail=? AND date>=? AND date<=? " +
+                        "GROUP BY yw " +
+                        "ORDER BY yw ASC";
+
+        String[] args = new String[] { email, String.valueOf(startDate), String.valueOf(endDate) };
+
+        try (Cursor c = db.rawQuery(sql, args)) {
+            while (c.moveToNext()) {
+                String label = c.getString(0);
+                double inc = c.isNull(1) ? 0.0 : c.getDouble(1);
+                double exp = c.isNull(2) ? 0.0 : c.getDouble(2);
+                res.add(new ReportRow(label, inc, exp));
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Monthly report rows inside [startDate, endDate].
+     * label: "MMM yyyy"
+     */
+    public List<ReportRow> getMonthlyReport(String email, long startDate, long endDate) {
+        SQLiteDatabase db = helper.getReadableDatabase();
+        List<ReportRow> res = new ArrayList<>();
+
+        String sql =
+                "SELECT strftime('%Y-%m', datetime(date/1000, 'unixepoch')) as ym, " +
+                        "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
+                        "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
+                        "FROM transactions " +
+                        "WHERE userEmail=? AND date>=? AND date<=? " +
+                        "GROUP BY ym " +
+                        "ORDER BY ym ASC";
+
+        String[] args = new String[] { email, String.valueOf(startDate), String.valueOf(endDate) };
+
+        SimpleDateFormat inFmt = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+        SimpleDateFormat outFmt = new SimpleDateFormat("MMM yyyy", Locale.getDefault());
+
+        try (Cursor c = db.rawQuery(sql, args)) {
+            while (c.moveToNext()) {
+                String ym = c.getString(0);
+                double inc = c.isNull(1) ? 0.0 : c.getDouble(1);
+                double exp = c.isNull(2) ? 0.0 : c.getDouble(2);
+
+                String label = ym;
+                try {
+                    java.util.Date d = inFmt.parse(ym);
+                    if (d != null) label = outFmt.format(d);
+                } catch (Exception ignored) {}
+
+                res.add(new ReportRow(label, inc, exp));
+            }
+        }
+        return res;
     }
 }

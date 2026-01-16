@@ -15,6 +15,7 @@ import com.personal.finance.data.model.User;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.personal.finance.data.model.ReportRow;
 
 public class FinanceRepository {
 
@@ -122,6 +123,18 @@ public class FinanceRepository {
 
     public List<Budget> getBudgetsForMonth(String email, int month, int year) {
         return budgetDb.getBudgetsForMonth(email, month, year);
+    }
+
+    public List<ReportRow> getDailyReport(String email, long startDate, long endDate) {
+        return transactionDb.getDailyReport(email, startDate, endDate);
+    }
+
+    public List<ReportRow> getWeeklyReport(String email, long startDate, long endDate) {
+        return transactionDb.getWeeklyReport(email, startDate, endDate);
+    }
+
+    public List<ReportRow> getMonthlyReport(String email, long startDate, long endDate) {
+        return transactionDb.getMonthlyReport(email, startDate, endDate);
     }
 
     public void insertBudget(Budget budget) {

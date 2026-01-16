@@ -184,6 +184,11 @@ public class ExpenseFragment extends Fragment {
                     return;
                 }
 
+                if (amount <= 0) {
+                    Toast.makeText(getContext(), "Amount must be more than 0", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if (existingTransaction == null) {
                     Transaction t = new Transaction(
                             amount, selectedDateTimestamp, category, description, "EXPENSE", email);

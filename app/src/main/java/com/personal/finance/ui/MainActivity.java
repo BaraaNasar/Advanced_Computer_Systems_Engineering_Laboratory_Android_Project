@@ -77,13 +77,7 @@ public class MainActivity extends AppCompatActivity {
         String userEmail = sessionManager.getUserEmail();
         if (userEmail != null) {
             financeViewModel.initializeUserData(userEmail);
-            // Only check budget alerts if this is a fresh login, not a theme change
-            // recreation
-            // savedInstanceState is null only on fresh activity creation (login), not on
-            // recreation
-            if (savedInstanceState == null) {
-                checkBudgetAlertsOnLogin(userEmail, financeViewModel);
-            }
+            checkBudgetAlertsOnLogin(userEmail, financeViewModel);
         }
 
         // Handle Logout manually as it's not a destination

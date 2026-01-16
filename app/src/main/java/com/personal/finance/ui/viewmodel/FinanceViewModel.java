@@ -10,6 +10,7 @@ import com.personal.finance.data.model.Category;
 import com.personal.finance.data.model.CategorySum;
 import com.personal.finance.data.model.Transaction;
 import com.personal.finance.data.repository.FinanceRepository;
+import com.personal.finance.data.model.ReportRow;
 
 import com.personal.finance.data.model.User;
 import java.util.List;
@@ -114,6 +115,18 @@ public class FinanceViewModel extends AndroidViewModel {
 
     public List<Budget> getBudgets(String email, int month, int year) {
         return repository.getBudgetsForMonth(email, month, year);
+    }
+
+    public List<ReportRow> getDailyReport(String email, long startDate, long endDate) {
+        return repository.getDailyReport(email, startDate, endDate);
+    }
+
+    public List<ReportRow> getWeeklyReport(String email, long startDate, long endDate) {
+        return repository.getWeeklyReport(email, startDate, endDate);
+    }
+
+    public List<ReportRow> getMonthlyReport(String email, long startDate, long endDate) {
+        return repository.getMonthlyReport(email, startDate, endDate);
     }
 
     public void addBudget(Budget budget) {
