@@ -56,7 +56,6 @@ public class LoginActivity extends AppCompatActivity {
 
         Button btnLogin = findViewById(R.id.btnLogin);
 
-        // New alternative sign up button to match the premium design
         findViewById(R.id.btnSignUpAlternative)
                 .setOnClickListener(v -> startActivity(new Intent(this, SignUpActivity.class)));
 

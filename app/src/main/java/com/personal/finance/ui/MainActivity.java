@@ -55,8 +55,7 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
 
-        // Pass each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+        // map navigation destinations
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_income, R.id.nav_history, R.id.nav_expenses, R.id.nav_budgets,
                 R.id.nav_profile,
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 .setOpenableLayout(drawer)
                 .build();
 
-        // Correct way to get NavController with FragmentContainerView
+        // get nav controller
         androidx.navigation.fragment.NavHostFragment navHostFragment = (androidx.navigation.fragment.NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_content_main);
         NavController navController = navHostFragment.getNavController();
@@ -72,15 +71,17 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        // Ensure default categories exist if none found
+        // ensure categories exist
         FinanceViewModel financeViewModel = new ViewModelProvider(this).get(FinanceViewModel.class);
         String userEmail = sessionManager.getUserEmail();
         if (userEmail != null) {
             financeViewModel.initializeUserData(userEmail);
-            checkBudgetAlertsOnLogin(userEmail, financeViewModel);
+            if (savedInstanceState == null) {
+                checkBudgetAlertsOnLogin(userEmail, financeViewModel);
+            }
         }
 
-        // Handle Logout manually as it's not a destination
+        // logout logic
         navigationView.getMenu().findItem(R.id.nav_logout).setOnMenuItemClickListener(item -> {
             sessionManager.logout();
 
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Set User Email in Header
+        // show email in header
         View headerView = navigationView.getHeaderView(0);
         TextView navUserEmail = headerView.findViewById(R.id.tvHeaderEmail);
         if (userEmail != null) {
@@ -109,13 +110,13 @@ public class MainActivity extends AppCompatActivity {
             if (!alerts.isEmpty()) {
                 StringBuilder sb = new StringBuilder("Summary:\n");
                 for (String alert : alerts) {
-                    sb.append("• ").append(alert).append("\n");
+                    sb.append("- ").append(alert).append("\n");
                 }
                 String message = sb.toString().trim();
 
                 runOnUiThread(() -> {
                     new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                            .setTitle("Proactive Budget Alert 🚨")
+                            .setTitle("Budget Alert")
                             .setMessage(message)
                             .setPositiveButton("I'll check", null)
                             .show();
@@ -126,8 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        // getMenuInflater().inflate(R.menu.main, menu);
+        // use this if we need a menu in action bar
         return true;
     }
 

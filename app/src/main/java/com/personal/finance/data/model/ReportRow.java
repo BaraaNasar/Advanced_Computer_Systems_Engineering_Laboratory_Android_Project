@@ -1,7 +1,10 @@
 package com.personal.finance.data.model;
 
+import lombok.Getter;
+
+@Getter
 public class ReportRow {
-    private final String label;       // day/week/month label
+    private final String label; // day/week/month label
     private final double income;
     private final double expense;
 
@@ -11,8 +14,7 @@ public class ReportRow {
         this.expense = expense;
     }
 
-    public String getLabel() { return label; }
-    public double getIncome() { return income; }
-    public double getExpense() { return expense; }
-    public double getBalance() { return income - expense; }
+    public double getBalance() {
+        return income - expense;
+    }
 }

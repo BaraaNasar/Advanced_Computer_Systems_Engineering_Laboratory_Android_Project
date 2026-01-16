@@ -37,7 +37,7 @@ public class IncomeFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+            ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_transaction_list, container, false);
     }
 
@@ -81,7 +81,8 @@ public class IncomeFragment extends Fragment {
     }
 
     private void loadIncomes(String email) {
-        if (email == null) return;
+        if (email == null)
+            return;
 
         new Thread(() -> {
             List<Transaction> incomes = financeViewModel.getIncomes(email);
@@ -101,9 +102,9 @@ public class IncomeFragment extends Fragment {
         EditText etDescription = dialogView.findViewById(R.id.etDescription);
         android.widget.TextView tvDate = dialogView.findViewById(R.id.tvTransactionDate);
 
-        com.google.android.material.card.MaterialCardView cardCategory =
-                dialogView.findViewById(R.id.cardCategory);
-        if (cardCategory != null) cardCategory.setOnClickListener(v -> spinnerCategory.performClick());
+        com.google.android.material.card.MaterialCardView cardCategory = dialogView.findViewById(R.id.cardCategory);
+        if (cardCategory != null)
+            cardCategory.setOnClickListener(v -> spinnerCategory.performClick());
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -116,8 +117,7 @@ public class IncomeFragment extends Fragment {
         }
         tvDate.setText(sdf.format(new Date(selectedDateTimestamp)));
 
-        com.google.android.material.card.MaterialCardView cardDate =
-                dialogView.findViewById(R.id.cardDate);
+        com.google.android.material.card.MaterialCardView cardDate = dialogView.findViewById(R.id.cardDate);
 
         View.OnClickListener dateClickListener = v -> {
             java.util.Calendar cal = java.util.Calendar.getInstance();
@@ -132,21 +132,21 @@ public class IncomeFragment extends Fragment {
         };
 
         tvDate.setOnClickListener(dateClickListener);
-        if (cardDate != null) cardDate.setOnClickListener(dateClickListener);
+        if (cardDate != null)
+            cardDate.setOnClickListener(dateClickListener);
 
-        // Populate Spinner (INCOME categories)
+        // set up categories spinner
         List<com.personal.finance.data.model.Category> categoryList = new ArrayList<>();
         android.widget.ArrayAdapter<String> catAdapter = new android.widget.ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
-                new ArrayList<>()
-        );
+                new ArrayList<>());
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(catAdapter);
 
         new Thread(() -> {
-            List<com.personal.finance.data.model.Category> categories =
-                    financeViewModel.getCategoriesByType(email, "INCOME");
+            List<com.personal.finance.data.model.Category> categories = financeViewModel.getCategoriesByType(email,
+                    "INCOME");
 
             categoryList.clear();
             categoryList.addAll(categories);
@@ -166,7 +166,8 @@ public class IncomeFragment extends Fragment {
                 catAdapter.clear();
                 catAdapter.addAll(names);
                 catAdapter.notifyDataSetChanged();
-                if (!names.isEmpty()) spinnerCategory.setSelection(finalSelectedIndex);
+                if (!names.isEmpty())
+                    spinnerCategory.setSelection(finalSelectedIndex);
             });
         }).start();
 
@@ -174,7 +175,7 @@ public class IncomeFragment extends Fragment {
             String amountStr = etAmount.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
 
-            // ✅ Spinner empty => واضح للدكتور
+            // handle empty categories
             if (spinnerCategory.getAdapter() == null || spinnerCategory.getAdapter().getCount() == 0) {
                 Toast.makeText(getContext(),
                         "Please add a category first from Settings",
@@ -211,8 +212,7 @@ public class IncomeFragment extends Fragment {
 
             if (existingTransaction == null) {
                 Transaction t = new Transaction(
-                        amount, selectedDateTimestamp, category, description, "INCOME", email
-                );
+                        amount, selectedDateTimestamp, category, description, "INCOME", email);
                 financeViewModel.addTransaction(t);
             } else {
                 existingTransaction.setAmount(amount);

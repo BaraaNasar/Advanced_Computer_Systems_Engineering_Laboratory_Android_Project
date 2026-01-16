@@ -18,12 +18,11 @@ public class CategoryDb {
         this.helper = new DBHelper(ctx);
     }
 
-    // INSERT with IGNORE (like Room OnConflictStrategy.IGNORE)
-    // returns rowId (>=1) if inserted, or -1 if ignored
+    // insert with ignore
     public long insert(Category category) {
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        // We use INSERT OR IGNORE to mimic IGNORE behavior with the UNIQUE index
+        // insert or ignore for uniqueness
         String sql = "INSERT OR IGNORE INTO categories(name, type, userEmail) VALUES(?,?,?)";
         db.execSQL(sql, new Object[] {
                 category.getName(),
@@ -31,9 +30,7 @@ public class CategoryDb {
                 category.getUserEmail()
         });
 
-        // If you want exact result: query last_insert_rowid, but for project
-        // simplicity:
-        // We'll return 1 if category exists after insert attempt, else -1
+        // return 1 if exists, else -1
         return exists(category.getName(), category.getType(), category.getUserEmail()) ? 1 : -1;
     }
 
@@ -45,7 +42,7 @@ public class CategoryDb {
         }
     }
 
-    // DELETE by id (easier + safer than deleting by all fields)
+    // delete category
     public int deleteById(long id) {
         SQLiteDatabase db = helper.getWritableDatabase();
         return db.delete("categories", "id=?", new String[] { String.valueOf(id) });

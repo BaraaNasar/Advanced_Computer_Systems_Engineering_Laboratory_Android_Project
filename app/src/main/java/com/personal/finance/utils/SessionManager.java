@@ -58,7 +58,7 @@ public class SessionManager {
         editor.remove(KEY_IS_LOGGED_IN);
         editor.remove(KEY_EMAIL);
         editor.apply();
-        // IMPORTANT: do NOT clear remembered email here
+        // keep remembered email
     }
 
     // Settings

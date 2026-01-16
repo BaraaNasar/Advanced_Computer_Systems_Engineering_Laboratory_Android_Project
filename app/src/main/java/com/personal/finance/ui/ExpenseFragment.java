@@ -103,7 +103,7 @@ public class ExpenseFragment extends Fragment {
         android.widget.TextView tvDate = dialogView.findViewById(R.id.tvTransactionDate);
         com.google.android.material.card.MaterialCardView cardCategory = dialogView.findViewById(R.id.cardCategory);
 
-        // Make the entire category card clickable to open spinner
+        // click card to open spinner
         cardCategory.setOnClickListener(v -> spinnerCategory.performClick());
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
@@ -133,7 +133,7 @@ public class ExpenseFragment extends Fragment {
         tvDate.setOnClickListener(dateClickListener);
         cardDate.setOnClickListener(dateClickListener);
 
-        // Populate Spinner (EXPENSE categories) - no LiveData now
+        // setup category spinner
         List<com.personal.finance.data.model.Category> categoryList = new ArrayList<>();
         android.widget.ArrayAdapter<String> catAdapter = new android.widget.ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, new ArrayList<>());

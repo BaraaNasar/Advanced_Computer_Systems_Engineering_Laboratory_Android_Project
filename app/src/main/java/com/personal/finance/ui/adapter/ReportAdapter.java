@@ -23,12 +23,14 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.VH> {
     private final List<ReportRow> items = new ArrayList<>();
 
     public ReportAdapter(List<ReportRow> initial) {
-        if (initial != null) items.addAll(initial);
+        if (initial != null)
+            items.addAll(initial);
     }
 
     public void submit(List<ReportRow> rows) {
         items.clear();
-        if (rows != null) items.addAll(rows);
+        if (rows != null)
+            items.addAll(rows);
         notifyDataSetChanged();
     }
 
@@ -45,7 +47,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.VH> {
         ReportRow r = items.get(position);
 
         String label = r.getLabel();
-        // ✅ إذا كان label بشكل 2026-02 (week key) حوليه لمدى تاريخ
+        // format week key to date range if needed
         if (isWeekKey(label)) {
             label = formatWeekKeyToRange(label);
         }
@@ -69,11 +71,11 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.VH> {
 
             Calendar cal = Calendar.getInstance(Locale.getDefault());
 
-            // خلي الأسبوع يبدأ Monday (أوضح للمستخدم)
+            // week starts Monday
             cal.setFirstDayOfWeek(Calendar.MONDAY);
             cal.setMinimalDaysInFirstWeek(4);
 
-            // روح لأول يوم بالأسبوع المطلوب
+            // move to first day
             cal.clear();
             cal.setFirstDayOfWeek(Calendar.MONDAY);
             cal.setMinimalDaysInFirstWeek(4);

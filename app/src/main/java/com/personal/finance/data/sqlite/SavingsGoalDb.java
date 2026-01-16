@@ -23,10 +23,7 @@ public class SavingsGoalDb {
         cv.put("year", g.getYear());
         cv.put("userEmail", g.getUserEmail());
 
-        // Use replace/insert with conflict replacement if Unique index hits
-        // Actually unique index is ON (month, year, userEmail). So we likely want to
-        // REPLACE or UPDATE if exists.
-        // Simplest: insertWithOnConflict with REPLACE.
+        // replace if already exists
         return db.insertWithOnConflict("savings_goals", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 

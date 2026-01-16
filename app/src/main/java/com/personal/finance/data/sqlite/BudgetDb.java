@@ -18,7 +18,7 @@ public class BudgetDb {
         this.helper = new DBHelper(ctx);
     }
 
-    // INSERT
+    // insert or update budget
     public long insert(Budget budget) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -28,7 +28,7 @@ public class BudgetDb {
         cv.put("year", budget.getYear());
         cv.put("userEmail", budget.getUserEmail());
 
-        // Check for existing
+        // see if it exists
         String selection = "category = ? AND month = ? AND year = ? AND userEmail = ?";
         String[] args = {
                 budget.getCategory(),
@@ -39,18 +39,18 @@ public class BudgetDb {
 
         try (Cursor cursor = db.query("budgets", new String[] { "id" }, selection, args, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
-                // UPDATE existing
+                // update if found
                 long id = cursor.getLong(cursor.getColumnIndexOrThrow("id"));
                 db.update("budgets", cv, "id=?", new String[] { String.valueOf(id) });
                 return id;
             } else {
-                // INSERT new
+                // or just insert new
                 return db.insert("budgets", null, cv);
             }
         }
     }
 
-    // UPDATE (by id)
+    // update logic
     public int update(Budget budget) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -67,13 +67,13 @@ public class BudgetDb {
                 new String[] { String.valueOf(budget.getId()) });
     }
 
-    // DELETE (by id)
+    // delete logic
     public int deleteById(long id) {
         SQLiteDatabase db = helper.getWritableDatabase();
         return db.delete("budgets", "id=?", new String[] { String.valueOf(id) });
     }
 
-    // GET ALL budgets for user
+    // get operations
     public List<Budget> getAllBudgets(String email) {
         return getBudgetsForMonth(email, -1, -1);
     }

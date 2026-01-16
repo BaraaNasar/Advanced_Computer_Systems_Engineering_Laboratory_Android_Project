@@ -13,7 +13,7 @@ public class UserDb {
         this.helper = new DBHelper(ctx);
     }
 
-    // Check if email already exists (PK rule)
+    // check if user exists
     public boolean userExists(String email) {
         SQLiteDatabase db = helper.getReadableDatabase();
         String sql = "SELECT 1 FROM " + DBHelper.T_USERS +
@@ -24,7 +24,7 @@ public class UserDb {
         }
     }
 
-    // Insert new user
+    // insert user
     public boolean insertUser(String email, String first, String last, String password) {
         SQLiteDatabase db = helper.getWritableDatabase();
 
@@ -38,7 +38,7 @@ public class UserDb {
         return res != -1;
     }
 
-    // Validate login (email + password)
+    // validate login
     public boolean validateLogin(String email, String password) {
         SQLiteDatabase db = helper.getReadableDatabase();
         String sql = "SELECT 1 FROM " + DBHelper.T_USERS +
@@ -49,7 +49,7 @@ public class UserDb {
         }
     }
 
-    // Get user by email
+    // get by email
     public com.personal.finance.data.model.User getUser(String email) {
         SQLiteDatabase db = helper.getReadableDatabase();
         String sql = "SELECT * FROM " + DBHelper.T_USERS +
@@ -66,7 +66,7 @@ public class UserDb {
         return null;
     }
 
-    // Update user details
+    // update user
     public boolean updateUser(com.personal.finance.data.model.User user) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();

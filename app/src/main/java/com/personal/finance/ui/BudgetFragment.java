@@ -57,7 +57,7 @@ public class BudgetFragment extends Fragment {
             return;
         }
 
-        // Init Calendar to current month
+        // init calendar
         java.util.Calendar cal = java.util.Calendar.getInstance();
         selectedMonth = cal.get(java.util.Calendar.MONTH);
         selectedYear = cal.get(java.util.Calendar.YEAR);
@@ -147,7 +147,7 @@ public class BudgetFragment extends Fragment {
 
     private void loadData(String email) {
         new Thread(() -> {
-            // 1. Budgets
+            // budgets data
             List<Budget> budgets = financeViewModel.getBudgets(email, selectedMonth, selectedYear);
             Map<String, Double> spentAmounts = new HashMap<>();
             for (Budget budget : budgets) {
@@ -168,9 +168,7 @@ public class BudgetFragment extends Fragment {
     }
 
     private void checkBudgetAlerts(List<Budget> budgets, Map<String, Double> spentAmounts) {
-        // Only show alerts if we are viewing the *current* month? Or maybe always
-        // useful.
-        // Let's stick to current month to avoid annoying toasts for history.
+        // show alerts for current month
         java.util.Calendar now = java.util.Calendar.getInstance();
         if (now.get(java.util.Calendar.MONTH) != selectedMonth || now.get(java.util.Calendar.YEAR) != selectedYear) {
             return;
@@ -232,7 +230,7 @@ public class BudgetFragment extends Fragment {
         // Make card clickable to open spinner
         view.findViewById(R.id.cardBudgetCategory).setOnClickListener(v -> spinner.performClick());
 
-        // Populate Spinner with Expense Categories
+        // populate categories
         new Thread(() -> {
             List<com.personal.finance.data.model.Category> categories = financeViewModel.getCategoriesByType(email,
                     "EXPENSE");

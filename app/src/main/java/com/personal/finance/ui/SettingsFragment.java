@@ -44,15 +44,10 @@ public class SettingsFragment extends Fragment {
         cardTheme = view.findViewById(R.id.cardTheme);
         cardPeriod = view.findViewById(R.id.cardPeriod);
 
-        // Apply Animations
+        // animations
         Animation slideUp = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in_slide_up);
         cardTheme.startAnimation(slideUp);
-        // Add a slight delay for the second card for a cascading effect
-        Animation slideUpDelayed = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in_slide_up);
-        slideUpDelayed.setStartOffset(100);
-        cardPeriod.startAnimation(slideUpDelayed);
-
-        // Theme Logic
+        // theme logic
         boolean isDark = "DARK".equals(sessionManager.getTheme());
         switchTheme.setChecked(isDark);
 
@@ -69,12 +64,8 @@ public class SettingsFragment extends Fragment {
         // Allow clicking the card to toggle the switch
         cardTheme.setOnClickListener(v -> switchTheme.toggle());
 
-        // Default Period Logic (Exposed Dropdown Menu)
+        // use adapter that doesn't filter items
         String[] periods = getResources().getStringArray(R.array.periods_array);
-        // Use a standard ArrayAdapter but ensure we don't filter out items based on
-        // selection
-        // Use a standard ArrayAdapter but ensure we don't filter out items based on
-        // selection
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
                 periods) {
@@ -113,7 +104,7 @@ public class SettingsFragment extends Fragment {
             String selected = parent.getItemAtPosition(position).toString();
             sessionManager.setDefaultPeriod(selected);
         });
-        // Manage Categories Logic
+        // manage categories
         cardCategories = view.findViewById(R.id.cardCategories);
         financeViewModel = new androidx.lifecycle.ViewModelProvider(this)
                 .get(com.personal.finance.ui.viewmodel.FinanceViewModel.class);

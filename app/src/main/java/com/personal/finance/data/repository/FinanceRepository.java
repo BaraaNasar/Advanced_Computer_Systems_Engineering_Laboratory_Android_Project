@@ -25,7 +25,6 @@ public class FinanceRepository {
     private final UserDb userDb;
     private final com.personal.finance.data.sqlite.SavingsGoalDb savingsGoalDb;
 
-    // keep background executor (replacement for Room executor)
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
 
     public FinanceRepository(Application application) {
@@ -36,7 +35,7 @@ public class FinanceRepository {
         savingsGoalDb = new com.personal.finance.data.sqlite.SavingsGoalDb(application);
     }
 
-    // ---------------- Transactions (read) ----------------
+    // --- transaction methods ---
     public List<Transaction> getAllTransactions(String email) {
         return transactionDb.getAllTransactions(email);
     }
@@ -77,7 +76,7 @@ public class FinanceRepository {
         return transactionDb.getDailySumsByType(email, type, startDate, endDate, days);
     }
 
-    // ---------------- Transactions (write async) ----------------
+    // async write operations
     public void insertTransaction(Transaction transaction) {
         executor.execute(() -> transactionDb.insert(transaction));
     }
@@ -95,7 +94,7 @@ public class FinanceRepository {
         return transactionDb.getAllTransactions(email);
     }
 
-    // ---------------- Categories ----------------
+    // categories
     public List<Category> getAllCategories(String email) {
         return categoryDb.getAllCategories(email);
     }
@@ -116,7 +115,7 @@ public class FinanceRepository {
         executor.execute(() -> categoryDb.update(oldCategory, newName));
     }
 
-    // ---------------- Budgets ----------------
+    // budgets
     public List<Budget> getAllBudgets(String email) {
         return budgetDb.getAllBudgets(email);
     }
@@ -149,7 +148,7 @@ public class FinanceRepository {
         executor.execute(() -> budgetDb.update(budget));
     }
 
-    // ---------------- Savings Goals ----------------
+    // savings
     public void setSavingsGoal(com.personal.finance.data.model.SavingsGoal goal) {
         executor.execute(() -> savingsGoalDb.insert(goal));
     }
@@ -158,7 +157,7 @@ public class FinanceRepository {
         return savingsGoalDb.getGoalForMonth(email, month, year);
     }
 
-    // ---------------- Pre-populate categories ----------------
+    // add default cats
     public void prePopulateCategories(String email) {
         executor.execute(() -> {
             if (categoryDb.getCategoryCount(email) == 0) {
@@ -181,7 +180,7 @@ public class FinanceRepository {
         });
     }
 
-    // ---------------- User ----------------
+    // user data
     public User getUser(String email) {
         return userDb.getUser(email);
     }

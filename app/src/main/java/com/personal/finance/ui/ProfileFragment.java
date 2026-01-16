@@ -40,9 +40,7 @@ public class ProfileFragment extends Fragment {
         etLast = view.findViewById(R.id.etProfileLastName);
         etPass = view.findViewById(R.id.etProfilePassword);
 
-        // Note: we should fetch current user data to populate fields.
-        // For now, we allow updating blindly or assuming user knows what they put.
-        // In a real app, we would observe getUser(email).
+        // map user data to fields
         com.personal.finance.data.model.User currentUser = financeViewModel.getUser(email);
         if (currentUser != null) {
             etFirst.setText(currentUser.getFirstName());

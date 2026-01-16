@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/auth_header_bg">
 
-    <!-- Header Area for Summary/Filters (FIXED) -->
     <!-- Header Area for Summary/Filters -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerContent"
@@ -71,7 +70,6 @@
             android:paddingTop="60dp"
             android:paddingBottom="24dp">
 
-            <!-- Premium Balance Card (Gradient) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -239,7 +237,6 @@
 
             </LinearLayout>
 
-            <!-- Chart Type Toggle (Segmented Control) -->
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/toggleChartType"
                 android:layout_width="wrap_content"
@@ -297,8 +294,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Category Distribution"
-                        android:textColor="?android:textColorSecondary"
-                        android:textSize="14sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
 
@@ -332,8 +329,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Financial Trends"
-                        android:textColor="?android:textColorSecondary"
-                        android:textSize="14sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
 
@@ -367,8 +364,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Detailed Report"
-                        android:textColor="?android:textColorSecondary"
-                        android:textSize="14sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
 

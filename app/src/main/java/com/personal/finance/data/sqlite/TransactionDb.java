@@ -22,7 +22,7 @@ public class TransactionDb {
         this.helper = new DBHelper(ctx);
     }
 
-    // INSERT -> returns new row id or -1
+    // insert transaction to database
     public long insert(Transaction t) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -35,7 +35,7 @@ public class TransactionDb {
         return db.insert("transactions", null, cv);
     }
 
-    // UPDATE by id
+    // updating by id
     public int update(Transaction t) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -59,7 +59,7 @@ public class TransactionDb {
         return deleteById(t.getId());
     }
 
-    // ---------- Queries ----------
+    // --- query operations ---
     public List<Transaction> getAllTransactions(String email) {
         return queryTransactions(
                 "SELECT id, amount, date, category, description, type, userEmail " +
@@ -110,7 +110,7 @@ public class TransactionDb {
         return res;
     }
 
-    // ---------- SUM helpers ----------
+    // --- aggregate sums ---
     public double getTotalIncome(String email) {
         return querySum(
                 "SELECT SUM(amount) FROM transactions WHERE userEmail=? AND type='INCOME'",
@@ -144,7 +144,7 @@ public class TransactionDb {
         }
     }
 
-    // ---------- Category grouped sums ----------
+    // grouping results
     public List<CategorySum> getCategoryGroupedSums(String email, String type, long startDate, long endDate) {
         SQLiteDatabase db = helper.getReadableDatabase();
         List<CategorySum> res = new ArrayList<>();
@@ -176,7 +176,7 @@ public class TransactionDb {
         double[] monthlySums = new double[12];
         SQLiteDatabase db = helper.getReadableDatabase();
 
-        String sql = "SELECT strftime('%m', datetime(date/1000, 'unixepoch')) as month, SUM(amount) as total " +
+        String sql = "SELECT strftime('%m', date/1000, 'unixepoch', 'localtime') as month, SUM(amount) as total " +
                 "FROM transactions " +
                 "WHERE userEmail=? AND type=? AND date>=? AND date<=? " +
                 "GROUP BY month";
@@ -235,25 +235,20 @@ public class TransactionDb {
         return dailySums;
     }
 
-    // ================== REPORTS (Aggregates) ==================
+    // --- reports logic ---
 
-    /**
-     * Daily report rows inside [startDate, endDate].
-     * label: "MMM dd"
-     */
+    // day report - label "MMM dd"
     public List<ReportRow> getDailyReport(String email, long startDate, long endDate) {
         SQLiteDatabase db = helper.getReadableDatabase();
         List<ReportRow> res = new ArrayList<>();
 
-        // group by day
-        String sql =
-                "SELECT strftime('%Y-%m-%d', datetime(date/1000, 'unixepoch')) as d, " +
-                        "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
-                        "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
-                        "FROM transactions " +
-                        "WHERE userEmail=? AND date>=? AND date<=? " +
-                        "GROUP BY d " +
-                        "ORDER BY d ASC";
+        String sql = "SELECT strftime('%Y-%m-%d', date/1000, 'unixepoch', 'localtime') as d, " +
+                "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
+                "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
+                "FROM transactions " +
+                "WHERE userEmail=? AND date>=? AND date<=? " +
+                "GROUP BY d " +
+                "ORDER BY d ASC";
 
         String[] args = new String[] { email, String.valueOf(startDate), String.valueOf(endDate) };
 
@@ -269,8 +264,10 @@ public class TransactionDb {
                 String label = dayStr;
                 try {
                     java.util.Date d = inFmt.parse(dayStr);
-                    if (d != null) label = outFmt.format(d);
-                } catch (Exception ignored) {}
+                    if (d != null)
+                        label = outFmt.format(d);
+                } catch (Exception ignored) {
+                }
 
                 res.add(new ReportRow(label, inc, exp));
             }
@@ -278,22 +275,18 @@ public class TransactionDb {
         return res;
     }
 
-    /**
-     * Weekly report rows inside [startDate, endDate].
-     * label: "YYYY-WW"
-     */
+    // week report - label "YYYY-WW"
     public List<ReportRow> getWeeklyReport(String email, long startDate, long endDate) {
         SQLiteDatabase db = helper.getReadableDatabase();
         List<ReportRow> res = new ArrayList<>();
 
-        String sql =
-                "SELECT strftime('%Y-%W', datetime(date/1000, 'unixepoch')) as yw, " +
-                        "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
-                        "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
-                        "FROM transactions " +
-                        "WHERE userEmail=? AND date>=? AND date<=? " +
-                        "GROUP BY yw " +
-                        "ORDER BY yw ASC";
+        String sql = "SELECT strftime('%Y-%W', date/1000, 'unixepoch', 'localtime') as yw, " +
+                "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
+                "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
+                "FROM transactions " +
+                "WHERE userEmail=? AND date>=? AND date<=? " +
+                "GROUP BY yw " +
+                "ORDER BY yw ASC";
 
         String[] args = new String[] { email, String.valueOf(startDate), String.valueOf(endDate) };
 
@@ -308,22 +301,18 @@ public class TransactionDb {
         return res;
     }
 
-    /**
-     * Monthly report rows inside [startDate, endDate].
-     * label: "MMM yyyy"
-     */
+    // month report - label "MMM yyyy"
     public List<ReportRow> getMonthlyReport(String email, long startDate, long endDate) {
         SQLiteDatabase db = helper.getReadableDatabase();
         List<ReportRow> res = new ArrayList<>();
 
-        String sql =
-                "SELECT strftime('%Y-%m', datetime(date/1000, 'unixepoch')) as ym, " +
-                        "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
-                        "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
-                        "FROM transactions " +
-                        "WHERE userEmail=? AND date>=? AND date<=? " +
-                        "GROUP BY ym " +
-                        "ORDER BY ym ASC";
+        String sql = "SELECT strftime('%Y-%m', date/1000, 'unixepoch', 'localtime') as ym, " +
+                "SUM(CASE WHEN type='INCOME' THEN amount ELSE 0 END) as incomeSum, " +
+                "SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) as expenseSum " +
+                "FROM transactions " +
+                "WHERE userEmail=? AND date>=? AND date<=? " +
+                "GROUP BY ym " +
+                "ORDER BY ym ASC";
 
         String[] args = new String[] { email, String.valueOf(startDate), String.valueOf(endDate) };
 
@@ -339,8 +328,10 @@ public class TransactionDb {
                 String label = ym;
                 try {
                     java.util.Date d = inFmt.parse(ym);
-                    if (d != null) label = outFmt.format(d);
-                } catch (Exception ignored) {}
+                    if (d != null)
+                        label = outFmt.format(d);
+                } catch (Exception ignored) {
+                }
 
                 res.add(new ReportRow(label, inc, exp));
             }

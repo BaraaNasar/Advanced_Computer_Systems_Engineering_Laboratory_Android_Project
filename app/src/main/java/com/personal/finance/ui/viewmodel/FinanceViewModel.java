@@ -24,7 +24,7 @@ public class FinanceViewModel extends AndroidViewModel {
         repository = new FinanceRepository(application);
     }
 
-    // -------- Transactions (read) --------
+    // transactions methods
     public List<Transaction> getTransactions(String email) {
         return repository.getAllTransactions(email);
     }
@@ -65,7 +65,7 @@ public class FinanceViewModel extends AndroidViewModel {
         return repository.getDailySumsByType(email, type, startDate, endDate, days);
     }
 
-    // -------- Transactions (write async in repository) --------
+    // write methods
     public void addTransaction(Transaction transaction) {
         repository.insertTransaction(transaction);
     }
@@ -82,7 +82,7 @@ public class FinanceViewModel extends AndroidViewModel {
         return repository.getAllTransactionsList(email);
     }
 
-    // -------- Categories --------
+    // category methods
     public void insertCategory(Category category) {
         repository.insertCategory(category);
     }
@@ -107,7 +107,7 @@ public class FinanceViewModel extends AndroidViewModel {
         repository.prePopulateCategories(email);
     }
 
-    // -------- Budgets --------
+    // budget methods
     public List<Budget> getBudgets(String email) {
         // Fallback or gets for current month if not specified
         return repository.getAllBudgets(email);
@@ -193,7 +193,7 @@ public class FinanceViewModel extends AndroidViewModel {
         return alerts;
     }
 
-    // -------- Savings Goals --------
+    // savings goals
     public void setSavingsGoal(com.personal.finance.data.model.SavingsGoal goal) {
         repository.setSavingsGoal(goal);
     }
@@ -202,7 +202,7 @@ public class FinanceViewModel extends AndroidViewModel {
         return repository.getSavingsGoal(email, month, year);
     }
 
-    // -------- User --------
+    // user profile
     public User getUser(String email) {
         return repository.getUser(email);
     }
