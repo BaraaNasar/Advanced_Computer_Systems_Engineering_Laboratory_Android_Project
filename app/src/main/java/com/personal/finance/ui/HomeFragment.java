@@ -222,20 +222,30 @@ public class HomeFragment extends Fragment {
             case "Week":
                 cal.set(java.util.Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
                 startDate = startOfDay(cal.getTimeInMillis());
-                endDate = endOfDay(now); // current day
+
+                // End of week (add 6 days to start date)
+                cal.add(java.util.Calendar.DATE, 6);
+                endDate = endOfDay(cal.getTimeInMillis());
                 break;
 
             case "Month":
                 cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
                 startDate = startOfDay(cal.getTimeInMillis());
-                endDate = endOfDay(now); // current day
+
+                // End of month
+                cal.set(java.util.Calendar.DAY_OF_MONTH, cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
+                endDate = endOfDay(cal.getTimeInMillis());
                 break;
 
             case "Year":
                 cal.set(java.util.Calendar.MONTH, java.util.Calendar.JANUARY);
                 cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
                 startDate = startOfDay(cal.getTimeInMillis());
-                endDate = endOfDay(now); // current day
+
+                // End of year
+                cal.set(java.util.Calendar.MONTH, java.util.Calendar.DECEMBER);
+                cal.set(java.util.Calendar.DAY_OF_MONTH, 31);
+                endDate = endOfDay(cal.getTimeInMillis());
                 break;
 
             case "Custom":
