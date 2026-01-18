@@ -71,8 +71,9 @@ public class ExpenseFragment extends Fragment {
                         .setTitle("Delete Transaction")
                         .setMessage("Are you sure you want to delete this expense?")
                         .setPositiveButton("Delete", (dialog, which) -> {
-                            financeViewModel.deleteTransaction(transaction);
-                            loadExpenses(email); // refresh
+                            financeViewModel.deleteTransaction(transaction, () -> {
+                                loadExpenses(email); // refresh
+                            });
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
@@ -192,18 +193,20 @@ public class ExpenseFragment extends Fragment {
                 if (existingTransaction == null) {
                     Transaction t = new Transaction(
                             amount, selectedDateTimestamp, category, description, "EXPENSE", email);
-                    financeViewModel.addTransaction(t);
-                    checkBudgetAfterAdd(email, category, selectedDateTimestamp);
+                    financeViewModel.addTransaction(t, () -> {
+                        checkBudgetAfterAdd(email, category, selectedDateTimestamp);
+                        loadExpenses(email);
+                    });
                 } else {
                     existingTransaction.setAmount(amount);
                     existingTransaction.setCategory(category);
                     existingTransaction.setDescription(description);
                     existingTransaction.setDate(selectedDateTimestamp);
-                    financeViewModel.updateTransaction(existingTransaction);
-                    checkBudgetAfterAdd(email, category, selectedDateTimestamp);
+                    financeViewModel.updateTransaction(existingTransaction, () -> {
+                        checkBudgetAfterAdd(email, category, selectedDateTimestamp);
+                        loadExpenses(email);
+                    });
                 }
-
-                loadExpenses(email); // refresh
             } else {
                 Toast.makeText(getContext(), "Invalid input or missing category", Toast.LENGTH_SHORT).show();
             }

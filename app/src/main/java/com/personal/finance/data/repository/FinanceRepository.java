@@ -77,16 +77,44 @@ public class FinanceRepository {
     }
 
     // async write operations
+    // async write operations
+    public void insertTransaction(Transaction transaction, Runnable onComplete) {
+        executor.execute(() -> {
+            transactionDb.insert(transaction);
+            if (onComplete != null) {
+                onComplete.run();
+            }
+        });
+    }
+
     public void insertTransaction(Transaction transaction) {
-        executor.execute(() -> transactionDb.insert(transaction));
+        insertTransaction(transaction, null);
+    }
+
+    public void deleteTransaction(Transaction transaction, Runnable onComplete) {
+        executor.execute(() -> {
+            transactionDb.deleteById(transaction.getId());
+            if (onComplete != null) {
+                onComplete.run();
+            }
+        });
     }
 
     public void deleteTransaction(Transaction transaction) {
-        executor.execute(() -> transactionDb.deleteById(transaction.getId()));
+        deleteTransaction(transaction, null);
+    }
+
+    public void updateTransaction(Transaction transaction, Runnable onComplete) {
+        executor.execute(() -> {
+            transactionDb.update(transaction);
+            if (onComplete != null) {
+                onComplete.run();
+            }
+        });
     }
 
     public void updateTransaction(Transaction transaction) {
-        executor.execute(() -> transactionDb.update(transaction));
+        updateTransaction(transaction, null);
     }
 
     // get all transactions as List

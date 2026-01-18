@@ -66,16 +66,29 @@ public class FinanceViewModel extends AndroidViewModel {
     }
 
     // write methods
+    // write methods
     public void addTransaction(Transaction transaction) {
-        repository.insertTransaction(transaction);
+        repository.insertTransaction(transaction, null);
+    }
+
+    public void addTransaction(Transaction transaction, Runnable onComplete) {
+        repository.insertTransaction(transaction, onComplete);
     }
 
     public void deleteTransaction(Transaction transaction) {
-        repository.deleteTransaction(transaction);
+        repository.deleteTransaction(transaction, null);
+    }
+
+    public void deleteTransaction(Transaction transaction, Runnable onComplete) {
+        repository.deleteTransaction(transaction, onComplete);
     }
 
     public void updateTransaction(Transaction transaction) {
-        repository.updateTransaction(transaction);
+        repository.updateTransaction(transaction, null);
+    }
+
+    public void updateTransaction(Transaction transaction, Runnable onComplete) {
+        repository.updateTransaction(transaction, onComplete);
     }
 
     public List<Transaction> getTransactionsList(String email) {

@@ -71,8 +71,9 @@ public class IncomeFragment extends Fragment {
                         .setTitle("Delete Transaction")
                         .setMessage("Are you sure you want to delete this income?")
                         .setPositiveButton("Delete", (dialog, which) -> {
-                            financeViewModel.deleteTransaction(transaction);
-                            loadIncomes(email); // refresh
+                            financeViewModel.deleteTransaction(transaction, () -> {
+                                loadIncomes(email); // refresh
+                            });
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
@@ -213,16 +214,14 @@ public class IncomeFragment extends Fragment {
             if (existingTransaction == null) {
                 Transaction t = new Transaction(
                         amount, selectedDateTimestamp, category, description, "INCOME", email);
-                financeViewModel.addTransaction(t);
+                financeViewModel.addTransaction(t, () -> loadIncomes(email));
             } else {
                 existingTransaction.setAmount(amount);
                 existingTransaction.setCategory(category);
                 existingTransaction.setDescription(description);
                 existingTransaction.setDate(selectedDateTimestamp);
-                financeViewModel.updateTransaction(existingTransaction);
+                financeViewModel.updateTransaction(existingTransaction, () -> loadIncomes(email));
             }
-
-            loadIncomes(email); // refresh
         });
 
         builder.setNegativeButton("Cancel", null);
